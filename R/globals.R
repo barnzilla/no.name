@@ -1,0 +1,1 @@
+utils::globalVariables(c("agegrp", "cagegrp", "ragegrp", "NAME", "multiplier", "activation", "From", "fromstar", "tmin", "file_name", "isim", "closing.parenthesis", "interval.label"))
