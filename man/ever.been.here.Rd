@@ -2,10 +2,13 @@
 % Please edit documentation in R/SEIR.n.Age.Classes.and.friends.R
 \name{ever.been.here}
 \alias{ever.been.here}
-\title{Ever been here function}
+\title{Another SEIR model function}
 \usage{
 ever.been.here(SEIR.object)
 }
+\arguments{
+\item{SEIR.object}{A SEIR model object}
+}
 \description{
-Ever been here function
+Another SEIR model function
 }

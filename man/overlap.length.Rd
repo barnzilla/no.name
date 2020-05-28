@@ -2,10 +2,19 @@
 % Please edit documentation in R/UtilitiesChunks.R
 \name{overlap.length}
 \alias{overlap.length}
-\title{Computer overlap length}
+\title{Overlap length function}
 \usage{
 overlap.length(L1, U1, L2, U2)
 }
+\arguments{
+\item{L1}{A vector}
+
+\item{U1}{A vector}
+
+\item{L2}{A vector}
+
+\item{U2}{A vector}
+}
 \description{
-Computer overlap length
+Overlap length function
 }

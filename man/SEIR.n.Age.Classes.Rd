@@ -2,17 +2,39 @@
 % Please edit documentation in R/SEIR.n.Age.Classes.and.friends.R
 \name{SEIR.n.Age.Classes}
 \alias{SEIR.n.Age.Classes}
-\title{SEIR model computations}
+\title{Main SEIR model function}
 \usage{
 SEIR.n.Age.Classes(
   file.name,
   sheets.names,
   differential.eqns.func = NULL,
+  just.get.functions = FALSE,
+  also.get.flows = NULL,
   post.processing.func = NULL,
   post.processing.companion.kit = NULL,
-  also.get.flows = NULL
+  agegrp.glue = "",
+  CTMC.random.seeds = NULL
 )
 }
+\arguments{
+\item{file.name}{A string}
+
+\item{sheets.names}{A string vector}
+
+\item{differential.eqns.func}{A string}
+
+\item{just.get.functions}{A logical}
+
+\item{also.get.flows}{A string}
+
+\item{post.processing.func}{A string}
+
+\item{post.processing.companion.kit}{A string}
+
+\item{agegrp.glue}{A string}
+
+\item{CTMC.random.seeds}{A vector of integers}
+}
 \description{
-SEIR model computations
+Main SEIR model function
 }

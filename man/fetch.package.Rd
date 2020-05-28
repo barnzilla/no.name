@@ -2,7 +2,7 @@
 % Please edit documentation in R/UtilitiesChunks.R
 \name{fetch.package}
 \alias{fetch.package}
-\title{Fetch an R package}
+\title{Fetch a package}
 \usage{
 fetch.package(
   nom_du_package,
@@ -10,6 +10,13 @@ fetch.package(
   verbose = FALSE
 )
 }
+\arguments{
+\item{nom_du_package}{A string}
+
+\item{try.this}{A string}
+
+\item{verbose}{A logical}
+}
 \description{
-Fetch an R package
+Fetch a package
 }

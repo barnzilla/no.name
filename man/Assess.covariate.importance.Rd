@@ -2,10 +2,19 @@
 % Please edit documentation in R/SEIR.n.Age.Classes.and.friends.R
 \name{Assess.covariate.importance}
 \alias{Assess.covariate.importance}
-\title{Compute correlation between parameters and an outcome variable}
+\title{Assess covariate importance}
 \usage{
 Assess.covariate.importance(don, X, Y, method)
 }
+\arguments{
+\item{don}{A data frame}
+
+\item{X}{A numerical vector}
+
+\item{Y}{A numerical vector}
+
+\item{method}{A string}
+}
 \description{
-Compute correlation between parameters and an outcome variable
+Assess covariate importance
 }

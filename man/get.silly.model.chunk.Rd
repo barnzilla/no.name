@@ -2,7 +2,7 @@
 % Please edit documentation in R/SEIR.n.Age.Classes.and.friends.R
 \name{get.silly.model.chunk}
 \alias{get.silly.model.chunk}
-\title{Get SEIR model inputs}
+\title{Get model chunk}
 \usage{
 get.silly.model.chunk(
   model_flows,
@@ -13,6 +13,19 @@ get.silly.model.chunk(
   NewTo
 )
 }
+\arguments{
+\item{model_flows}{A string}
+
+\item{init.cond}{A string}
+
+\item{init.cond.numeric.vars}{A vector string}
+
+\item{which.flow}{A string}
+
+\item{NewFrom}{A string}
+
+\item{NewTo}{A string}
+}
 \description{
-Get SEIR model inputs
+Get model chunk
 }

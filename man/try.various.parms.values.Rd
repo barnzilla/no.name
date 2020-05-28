@@ -2,7 +2,7 @@
 % Please edit documentation in R/SEIR.n.Age.Classes.and.friends.R
 \name{try.various.parms.values}
 \alias{try.various.parms.values}
-\title{Parameter sweep function}
+\title{Perform parameter sweeping}
 \usage{
 try.various.parms.values(
   SEIR.object,
@@ -10,6 +10,13 @@ try.various.parms.values(
   only.show.parms.to.try = FALSE
 )
 }
+\arguments{
+\item{SEIR.object}{A SEIR model object}
+
+\item{parm.cloud.grid.specs}{A data frame}
+
+\item{only.show.parms.to.try}{A logical}
+}
 \description{
-Parameter sweep function
+Perform parameter sweeping
 }

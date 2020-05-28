@@ -1,7 +1,13 @@
 # This a subset of \\hird1/Saslibe$/SAS_user_defined_macros/Utilities.R (aka S:/SAS_user_defined_macros/Utilities.R)
 
-#' Fetch an R package
+#' Fetch a package
 #' @export
+#' @importFrom utils install.packages
+#' @param nom_du_package A string
+#' @param try.this A string
+#' @param verbose A logical
+#'
+
 fetch.package =function(nom_du_package,try.this=c("nothing","load","install"),verbose=FALSE)
 {
   if(verbose)
@@ -36,9 +42,12 @@ fetch.package =function(nom_du_package,try.this=c("nothing","load","install"),ve
   found
 }
 
-#' Convert a tibble to a dataframe
+#' Convert a tibble to a data frame
 #' @export
-tbl_to_df = function(data.frame.ish,rename=NULL) # rename is vector or data.frame with at least $var.names.in
+#' @param data.frame.ish A tibble
+#' @param rename A vector or data frame
+
+from.tbl.to.df = function(data.frame.ish,rename=NULL) # rename is vector or data.frame with at least $var.names.in
 {
   if (!fetch.package("dplyr"))
     stop("package dplyr not found")  # needed for dplyr::is.tbl
@@ -77,8 +86,13 @@ tbl_to_df = function(data.frame.ish,rename=NULL) # rename is vector or data.fram
   simple.df
 }
 
-#' Computer overlap length
+#' Overlap length function
 #' @export
+#' @param L1 A vector
+#' @param U1 A vector
+#' @param L2 A vector
+#' @param U2 A vector
+
 overlap.length = function(L1,U1,L2,U2)
 {
   pmax(pmin(U1,U2) - pmax(L1,L2),0)
@@ -87,8 +101,13 @@ overlap.length = function(L1,U1,L2,U2)
 
 #verbose.save = function(object.name,path.with.trailing.slash="",prefix.suffix=c(prefix="This file contains an R object called ",suffix=".SavedFromR"),time.stamp="")
 
-#' Save R data
+#' Verbose save function
 #' @export
+#' @param object.name A string
+#' @param path.with.trailing.slash A string
+#' @param prefix.suffix A string
+#' @param time.stamp A time object
+
 verbose.save = function(object.name,path.with.trailing.slash="",prefix.suffix=c(prefix="This file contains an R object called ",suffix=".SavedFromR"),time.stamp=gsub(":","-",Sys.time()))
 {
   if(time.stamp != "")

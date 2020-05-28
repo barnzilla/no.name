@@ -1,21 +1,42 @@
 Package: sweepr
-Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: GPL-3
+Title: Run Paramter Sweeps on SEIR Models
+Version: 0.11.0
+Authors@R: 
+    c(person(given = "Claude",
+             family = "Nadeau",
+             role = "aut",
+             email = "claude.nadeau.statcan@gccollaboration.ca"),
+      person(given = "Maikol",
+             family = "Diasparra",
+             role = "aut",
+             email = "maikol.diasparra.statcan@gccollaboration.ca"),
+      person(given = "Joel",
+             family = "Barnes",
+             role = c("aut", "cre"),
+             email = "joel.barnes.statcan@gccollaboration.ca",
+             comment = c(ORCID = "0000-0002-7621-9020")),
+      person(given = "Deirdre",
+             family = "Henessy",
+             role = "aut",
+             email = "deirdre.hennessy.statcan@gccollaboration.ca"),
+      person(given = "Rochelle",
+             family = "Garner",
+             role = "aut",
+             email = "rochelle.garner.statcan@gccollaboration.ca"))
+Description: What the package does (one paragraph).
+License: CC BY 4.0
 Encoding: UTF-8
+Language: en
 LazyData: true
-Imports:
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.0
+Imports: 
+    adaptivetau,
     deSolve,
     dplyr,
-    janitor,
     lhs,
+    magrittr,
     openxlsx,
     readxl,
     tidyr,
     triangle
-RoxygenNote: 7.1.0

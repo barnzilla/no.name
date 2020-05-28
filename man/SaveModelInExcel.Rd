@@ -2,10 +2,17 @@
 % Please edit documentation in R/SEIR.n.Age.Classes.and.friends.R
 \name{SaveModelInExcel}
 \alias{SaveModelInExcel}
-\title{Save SEIR model to Excel file}
+\title{Save SEIR model as Excel file}
 \usage{
 SaveModelInExcel(input.info.list, file_name, map.names)
 }
+\arguments{
+\item{input.info.list}{A data frame}
+
+\item{file_name}{A string}
+
+\item{map.names}{A vector string}
+}
 \description{
-Save SEIR model to Excel file
+Save SEIR model as Excel file
 }

@@ -1,49 +1,89 @@
-#' SEIR model computations
+#' Main SEIR model function
 #' @export
-SEIR.n.Age.Classes = function(file.name, sheets.names, differential.eqns.func=NULL, post.processing.func=NULL ,post.processing.companion.kit=NULL, also.get.flows=NULL)
+#' @importFrom adaptivetau ssa.adaptivetau
+#' @importFrom deSolve lsoda
+#' @importFrom dplyr arrange mutate slice
+#' @importFrom magrittr %>%
+#' @importFrom readxl read_excel
+#' @importFrom tidyr pivot_longer
+#' @param file.name A string
+#' @param sheets.names A string vector
+#' @param differential.eqns.func A string
+#' @param just.get.functions A logical
+#' @param also.get.flows A string
+#' @param post.processing.func A string
+#' @param post.processing.companion.kit A string
+#' @param agegrp.glue A string
+#' @param CTMC.random.seeds A vector of integers
+
+SEIR.n.Age.Classes = function(file.name, sheets.names, differential.eqns.func=NULL, just.get.functions=FALSE, also.get.flows=NULL,
+                                       post.processing.func=NULL ,post.processing.companion.kit=NULL, agegrp.glue="", CTMC.random.seeds=NULL) # agegrp.glue=".ag"
 {
-  #sheets.names is list(parms.1d,  parms.2d,  initial.conditions,  model.flow,  auxiliary.vars)
+  expected.sheets.names = c("parms.0d","parms.1d","parms.2d","initial.conditions","model.flow","auxiliary.vars")
+
+  if( !all( expected.sheets.names %in% names(sheets.names) ) )
+    stop( paste("\n sheets.names must provide the following:",paste(expected.sheets.names,collapse=", ")) )
 
   input.info.verbatim = sheets.names
   input.info.verbatim$file.name = file.name
+  input.info.verbatim$agegrp.glue = agegrp.glue
+  input.info.verbatim$CTMC.random.seeds = CTMC.random.seeds
   #==========================================================================
   #   Initial conditions and parameters
   #==========================================================================
-  #browser()
 
-  tmp_time_stuff   = sheets.names$parms.1d            # 1 dimensional parameters
-  tmp_time_stuff_m = sheets.names$parms.2d            # 2 dimensional parameters
-  input_stuff      = sheets.names$initial.conditions  # initial values/conditions
+  tmp_parm_value_0d = sheets.names$parms.0d            # 0 dimensional parameters
+  tmp_parm_value_1d = sheets.names$parms.1d            # 1 dimensional parameters
+  tmp_parm_value_2d = sheets.names$parms.2d            # 2 dimensional parameters
+  input_stuff       = sheets.names$initial.conditions  # initial values/conditions
 
-  if(!is.data.frame(tmp_time_stuff))
-    tmp_time_stuff   <- tbl_to_df( readxl::read_excel(file.name, sheet = tmp_time_stuff) )  # 1 dimensional parameters
 
-  if(!is.data.frame(tmp_time_stuff_m))
-    tmp_time_stuff_m <- tbl_to_df( readxl::read_excel(file.name, sheet = tmp_time_stuff_m) ) # 2 dimensional parameters
+  if(!is.data.frame(tmp_parm_value_0d))
+    tmp_parm_value_0d <- from.tbl.to.df( readxl::read_excel(file.name, sheet = tmp_parm_value_0d) )  # 1 dimensional parameters
+
+  if(!is.data.frame(tmp_parm_value_1d))
+    tmp_parm_value_1d <- from.tbl.to.df( readxl::read_excel(file.name, sheet = tmp_parm_value_1d) )  # 1 dimensional parameters
+
+  if(!is.data.frame(tmp_parm_value_2d))
+    tmp_parm_value_2d <- from.tbl.to.df( readxl::read_excel(file.name, sheet = tmp_parm_value_2d) ) # 2 dimensional parameters
 
   if(!is.data.frame(input_stuff))
-    input_stuff  <- tbl_to_df( readxl::read_excel(file.name, sheet = input_stuff) ) # initial values/conditions
+    input_stuff  <- from.tbl.to.df( readxl::read_excel(file.name, sheet = input_stuff) ) # initial values/conditions
 
   raw.init.conditions = input_stuff # keep snapshot for output.  input_stuff may be altered later
 
-  nagegrp <- length(unique(tmp_time_stuff$agegrp))        # number of age groups
+  nagegrp <- length(unique(tmp_parm_value_1d$agegrp)) # number of age groups
   nagegrp = ncol(raw.init.conditions) - 1             # number of age groups
-  agegrp.suffix = ""
+
+  #BEGIN get raw.compartments.age and pretty.compartments.age
+  agegrp.suffix.pretty = agegrp.suffix = ""
   if(nagegrp > 1)
-    agegrp.suffix = 1:nagegrp
+  {
+    agegrp.suffix        = 1:nagegrp
+    agegrp.suffix.pretty = paste0(agegrp.glue,1:nagegrp) # if agegrp.glue = ".ag" this generates ".ag1" ".ag2" ".ag3"
+  }
 
-  raw.compartments =   raw.init.conditions$NAME # e.g.  S D L
-  raw.compartments.age = c ( t( outer( raw.compartments,agegrp.suffix,paste0) ) ) # e.g. S1 S2 S3 S4 S5 D1 D2 ...
+     raw.compartments =   raw.init.conditions$NAME # e.g.  S D L
+     raw.compartments.age = c ( t( outer( raw.compartments,agegrp.suffix       ,paste0) ) ) # e.g. S1    S2    S3    S4    S5    D1    D2    ...
+  pretty.compartments.age = c ( t( outer( raw.compartments,agegrp.suffix.pretty,paste0) ) ) # e.g. S.ag1 S.ag2 S.ag3 S.ag4 S.ag5 D.ag1 D.ag2 ...
 
+  if(length(unique(raw.compartments.age)) != length(raw.compartments.age)  )
+    stop("\n Ambuiguity from compartment names and ages")
+  # Ambiguity could arise if there are 2 compartments named S and S1 (say) and there are > 10 age groups
+  # Then S11 could be 11th age group of S or first age group of S1
+  #END get raw.compartments.age and pretty.compartments.age
 
-  nrow_   <- dim(tmp_time_stuff)[1]/nagegrp
+  nrow_   <- dim(tmp_parm_value_1d)[1]/nagegrp
 
-  time_stuff <- dplyr::arrange(tmp_time_stuff, tmin, agegrp) # sort by tmin agegrp
-  time_stuff <- time_stuff %>%
+  parm_value_0d <- dplyr::arrange(tmp_parm_value_0d, tmin        ) # sort by tmin
+  parm_value_0d$isim = 1:nrow_  # (1:nrow(parm_value_0d))
+
+  parm_value_1d <- dplyr::arrange(tmp_parm_value_1d, tmin, agegrp) # sort by tmin agegrp
+  parm_value_1d <- parm_value_1d %>%
     mutate(isim = rep(1:nrow_, each=nagegrp))
 
-  time_stuff_m <- dplyr::arrange(tmp_time_stuff_m, tmin, cagegrp, ragegrp) # sort by tmin cagegrp  ragegrp
-  time_stuff_m <- time_stuff_m %>%
+  parm_value_2d <- dplyr::arrange(tmp_parm_value_2d, tmin, cagegrp, ragegrp) # sort by tmin cagegrp  ragegrp
+  parm_value_2d <- parm_value_2d %>%
     mutate(isim = rep(1:nrow_, each = nagegrp*nagegrp))
 
   #===================================================================
@@ -52,7 +92,7 @@ SEIR.n.Age.Classes = function(file.name, sheets.names, differential.eqns.func=NU
 
   code.body.df = sheets.names$post.processing # data.frame or string
   if(!is.data.frame(code.body.df))
-    code.body.df = tbl_to_df( readxl::read_excel(file.name, sheet = code.body.df ) )
+    code.body.df = from.tbl.to.df( readxl::read_excel(file.name, sheet = code.body.df ) )
 
   code.body.df$code[is.na(code.body.df$code)] = ""
 
@@ -63,13 +103,17 @@ SEIR.n.Age.Classes = function(file.name, sheets.names, differential.eqns.func=NU
     code.head.char = c("function(list.solution.etcetera){",
                        "# list.solution.etcetera contains $solution and possibly $solution.inflows and/or $solution.outflows" ,
                        "# Probably could use    with(list.solution.etcetera)   instead of copying" ,
-                       "solution          = list.solution.etcetera$solution",
-                       "solution.inflows  = list.solution.etcetera$solution.inflows",
-                       "solution.outflows = list.solution.etcetera$solution.outflows",
-                       "parms.1d          = list.solution.etcetera$input.info$parms.1d",
-                       "parms.2d          = list.solution.etcetera$input.info$parms.2d",
-                       "companion.kit     = list.solution.etcetera$post.processing.companion.kit",
-                       "sommaire          = data.frame(osqvhfipumzcdjblkwrgnexaty=4)" ,
+                       "solution            = list.solution.etcetera$solution",
+                       "solution.inflows    = list.solution.etcetera$solution.inflows",
+                       "solution.outflows   = list.solution.etcetera$solution.outflows",
+                       "CTMC.df             = list.solution.etcetera$CTMC.out$CTMC.df",
+                       "parms.0d            = list.solution.etcetera$input.info$parms.0d",
+                       "parms.1d            = list.solution.etcetera$input.info$parms.1d",
+                       "parms.2d            = list.solution.etcetera$input.info$parms.2d",
+                       "initial.conditions  = list.solution.etcetera$input.info$initial.conditions",
+                       "companion.kit       = list.solution.etcetera$functions$post.processing.companion.kit",
+                       "input.info.verbatim = list.solution.etcetera$input.info.verbatim",
+                       "sommaire            = data.frame(osqvhfipumzcdjblkwrgnexaty=4)" ,
                        "## BEGIN code from excel"  )
     code.tail.char = c("## END code from excel",
                        "sommaire$osqvhfipumzcdjblkwrgnexaty=c()",
@@ -85,6 +129,7 @@ SEIR.n.Age.Classes = function(file.name, sheets.names, differential.eqns.func=NU
   #===================================================================
   # Build function eval.differential.eqns.func (if not provided)
   #===================================================================
+
   model_flows_tmp = auxiliary.vars = "Not used since was argument differential.eqns.func was provided"
   eval.differential.eqns.func = differential.eqns.func
   flows.requested = !is.null(also.get.flows) && any(also.get.flows %in% c("inflows","outflows"))
@@ -93,16 +138,21 @@ SEIR.n.Age.Classes = function(file.name, sheets.names, differential.eqns.func=NU
     model_flows_tmp = sheets.names$model.flow
     auxiliary.vars  = sheets.names$auxiliary.vars
 
-    if(!is.data.frame(model_flows_tmp))
-      model_flows_tmp  <- tbl_to_df( readxl::read_excel(file.name, sheet = model_flows_tmp) )  # arrows in flowchart
-
     if(!is.data.frame(auxiliary.vars))
-      auxiliary.vars   <- tbl_to_df( readxl::read_excel(file.name, sheet = auxiliary.vars ) )  # auxiliary variables in equations
+      auxiliary.vars   <- from.tbl.to.df( readxl::read_excel(file.name, sheet = auxiliary.vars ) )  # auxiliary variables in equations
+
+    auxiliary.vars = subset(auxiliary.vars, !is.na(code)   )  # auxiliary.vars$code will be top portion of with(...,{ ... })  part
+
+
+    if(!is.data.frame(model_flows_tmp))
+      model_flows_tmp  <- from.tbl.to.df( readxl::read_excel(file.name, sheet = model_flows_tmp) )  # arrows in flowchart
 
     model_flows_tmp = subset( model_flows_tmp,!is.na(expression) & activation ==1)
     model_flows = model_flows_tmp     # keep model_flows_tmp for output. Work on model_flows from this point on
 
-
+ #   transitions.for.adaptivetau.early = paste("list(" , paste(paste('c(',model_flows$From,'=-1,',model_flows$To,'=+1)'),collapse=' , ') , ')')
+ #   transitions.for.adaptivetau.early = eval(parse(text=transitions.for.adaptivetau.early))
+ #   names(transitions.for.adaptivetau.early) = paste(model_flows$From,'-->',model_flows$To)
     # BEGIN update model_flows and input_stuff as per requested flows (if any)
 
     init.cond.numeric.vars = setdiff(colnames(input_stuff),"NAME")
@@ -127,8 +177,7 @@ SEIR.n.Age.Classes = function(file.name, sheets.names, differential.eqns.func=NU
     for(k in input_stuff$NAME)
       init_list[[k]] <- as.matrix( subset(input_stuff, NAME == k)[,init.cond.numeric.vars] )
 
-
-    # BEGIN Build character vector differential.eqns.char
+    # BEGIN Build character vector differential.eqns.char  (and ratefunc.for.adaptivetau.chunks + transitions.for.adaptivetau )
     model_flows$multiplier = model_flows$From
 
     lazy.range=range(model_flows$lazy)
@@ -151,13 +200,23 @@ SEIR.n.Age.Classes = function(file.name, sheets.names, differential.eqns.func=NU
     outflows=rep("#####$$$$$$$$$$$!@@@@@@@@",length(boxes))
     names(outflows) = boxes
     inflows=outflows
+    ratefunc.for.adaptivetau.chunks = c()
+    transitions.for.adaptivetau = list()
 
     for(k in seq(nrow(model_flows)))
     {
       this.expression = model_flows$expression[k]
       outflows[model_flows$From[k]] = paste(outflows[model_flows$From[k]],"+", this.expression)
       inflows [model_flows$To[k]  ] = paste( inflows[model_flows$To[k]  ],"+", this.expression)
+
+      ratefunc.for.adaptivetau.chunks = c(ratefunc.for.adaptivetau.chunks,this.expression)
+      transitions.for.adaptivetau.chunk = c(-1,+1)
+      names(transitions.for.adaptivetau.chunk) = model_flows[k,c("From","To")]
+      transitions.for.adaptivetau[[k]] = transitions.for.adaptivetau.chunk
     }
+    names(transitions.for.adaptivetau) = paste(model_flows$From,'-->',model_flows$To)
+    names(ratefunc.for.adaptivetau.chunks) = names(transitions.for.adaptivetau)
+
     differential.eqns.char = paste("(flow.multiplier$inflow)*(",inflows,") + (flow.multiplier$outflow)*(",outflows,")")
     differential.eqns.char = gsub(  "#####$$$$$$$$$$$!@@@@@@@@ +","" ,differential.eqns.char ,fixed=TRUE)
     differential.eqns.char = gsub("( #####$$$$$$$$$$$!@@@@@@@@ )","0",differential.eqns.char ,fixed=TRUE)
@@ -168,51 +227,75 @@ SEIR.n.Age.Classes = function(file.name, sheets.names, differential.eqns.func=NU
 
     rm(model_flows,boxes,inflows,outflows,this.expression) # clean up intermediate objects no longer required
 
-    # END Build character vector differential.eqns.char
+    # END Build character vector differential.eqns.char  (and ratefunc.for.adaptivetau.chunks + transitions.for.adaptivetau )
 
 
     # BEGIN Build function eval.differential.eqns.func
 
-    auxiliary.vars.assignment = paste(auxiliary.vars$variable,"=",auxiliary.vars$expression)
-    compartments =   input_stuff$NAME # e.g.  S D L
+     ODE.func.header.char = c("function(list.boxes, list.parms, time.now, flow.multiplier=list(inflow=1,outflow=-1)){" ,"#browser() #not a good place for it")
+    CTMC.func.header.char = c("function(list.boxes, list.parms, time.now) {"                                           ,"#browser() #not a good place for it")  # , "print(time.now)"
+
+    # BEGIN get ODE.within.with.part.char and CTMC.within.with.part.char
+    compartments =   input_stuff$NAME # e.g.  S D L   (note it is not be the same as raw.compartments if also.get.flows != NULL)
     compartments.age = c ( t( outer( compartments,seq(nagegrp),paste0) ) ) # e.g. S1 S2 S3 S4 S5 D1 D2 ...
     out.char      = paste0("out=c(", paste0("derivative.", paste(compartments    , collapse=", derivative.")),")")
     names.out.char= paste0("out=c(", paste0("derivative.", paste(compartments.age, collapse=",derivative." )),")")
-    names.out.char = gsub(",","','",names.out.char ,fixed=TRUE) # replace , by ','
-    names.out.char = gsub("(","('" ,names.out.char ,fixed=TRUE) # replace ( by ('
-    names.out.char = gsub(")","')" ,names.out.char ,fixed=TRUE) # replace ) by ')
+   #names.out.char = gsub(",","','"  ,names.out.char ,fixed=TRUE) # replace , by ','     may generate a line that is too long causing problems
+    names.out.char = gsub(",","',\n'",names.out.char ,fixed=TRUE) # replace , by ',\n'   invoids the problematic single line that is too long
+    names.out.char = gsub("(","('"   ,names.out.char ,fixed=TRUE) # replace ( by ('
+    names.out.char = gsub(")","')"   ,names.out.char ,fixed=TRUE) # replace ) by ')
     names.out.char = gsub("out=","names(out)=",names.out.char ,fixed=TRUE)
 
-    #function.char = c(auxiliary.vars.assignment,differential.eqns)
-    within.with.part.char = paste(c(auxiliary.vars.assignment,differential.eqns.char,out.char,names.out.char,"list(out)"),collapse="\n") # First tried ";\n" but realised that "\n" is sufficient
+     ODE.within.with.part.char = paste(c(differential.eqns.char,out.char,names.out.char,"#print(out)","list(out)"),collapse="\n") # First tried ";\n" but realised that "\n" is sufficient
 
-    function.char = "function(list.inits, list.parms,flow.multiplier=list(inflow=1,outflow=-1)){"
-    with.char =   " with(as.list(c(list.inits, list.parms)),{"
+    CTMC.within.with.part.char = paste("c(", paste(ratefunc.for.adaptivetau.chunks, collapse=" ,\n "),")")
+    # END get ODE.within.with.part.char and CTMC.within.with.part.char
+
+    ODE.with.char = c("relevant.parm=sum(time.now >= list.parms$tmin.vect)",
+                       "names(time.now     )='time.now'",
+                       "# list.parms$parms.1d = list.parms$parms.1d[[relevant.parm]] # for CTMC.with.char    # DELETE",
+                       "# list.parms$parms.2d = list.parms$parms.2d[[relevant.parm]] # for CTMC.with.char    # DELETE",
+                       "## list.parms = as.list(c(list.parms['tmin.vect'], list.parms$parms.1d[[relevant.parm]] , list.parms$parms.2d[[relevant.parm]])) # for CTMC.with.char",
+                       "list.parms=as.list(c( time.now, list.parms ))" ,
+                       "with(as.list(c(list.boxes, list.parms)),{",
+                       "#browser() # a good place for it" )
+   # ODE.with.char = gsub("list.parms$parms.1d[[relevant.parm]] , list.parms$parms.2d[[relevant.parm]]","list.parms",CTMC.with.char,fixed=TRUE)
+    CTMC.with.char = gsub("##","",ODE.with.char,fixed=TRUE)
 
 
-    eval.differential.eqns.func = paste(c(function.char,with.char,within.with.part.char,"})" ,"}"),collapse="\n" ) # code of eval.differential.eqns.func
+    # BEGIN Create functions eval.differential.eqns.func and ratefunc.for.adaptivetau
+    eval.differential.eqns.func = paste(c( ODE.func.header.char,  ODE.with.char, auxiliary.vars$code,  ODE.within.with.part.char,"})" ,"}"),collapse="\n" ) # code of eval.differential.eqns.func
+    ratefunc.for.adaptivetau    = paste(c(CTMC.func.header.char, CTMC.with.char, auxiliary.vars$code, CTMC.within.with.part.char,"})" ,"}"),collapse="\n" ) # code of ratefunc.for.adaptivetau
+
     # cat(eval.differential.eqns.func) # quick look at how it look like
-    eval.differential.eqns.func = eval(parse(text =  eval.differential.eqns.func ))
 
-    #eval.differential.eqns.func = eval(parse(text= "function(X) {\n cos(X)\n}" ))
-    #eval.differential.eqns.func = eval(parse(text= "function(X) { cos(X)}" ))
-    #eval.differential.eqns.func (pi)  # gives -1 as it should
+    eval.differential.eqns.func = eval(parse(text = eval.differential.eqns.func ))
+    ratefunc.for.adaptivetau    = eval(parse(text = ratefunc.for.adaptivetau    ))
+    # END Create functions eval.differential.eqns.func and ratefunc.for.adaptivetau
 
-    rm(auxiliary.vars.assignment, out.char, within.with.part.char, function.char, with.char) # clean up
+
+    rm(CTMC.within.with.part.char, CTMC.func.header.char, CTMC.with.char,
+        ODE.within.with.part.char,  ODE.func.header.char,  ODE.with.char, out.char) # clean up
     # END Build function eval.differential.eqns.func
   }
 
+  resultat = list(functions=list( differential.eqns.func    = eval.differential.eqns.func ,
+                                  CTMC.eqns.func            = ratefunc.for.adaptivetau,
+                                  post.processing.func      = eval.post.processing.func,
+                                  post.processing.companion.kit = post.processing.companion.kit ))
+
+  if(just.get.functions)
+    return ( resultat$functions )
 
   #==========================================================================
   #  Main routine
   #==========================================================================
   # The SEIR model with N age classes
   #
-  #' SEIR model computations within N age groups
-  #' @export
-  SEIR.n.Age.Classes.within.loop <- function( time=NULL, age.parms = NULL, age.age.parms = NULL,list.inits = NULL, not.parms=  c("tmin", "tmax", "agegrp", "cagegrp", "ragegrp", "isim"))
+  SEIR.n.Age.Classes.within.loop <- function( time=NULL, tmin.vect=NULL, ageless.parms = NULL, age.parms = NULL, age.age.parms = NULL,list.inits = NULL, not.parms=  c("tmin", "tmax", "agegrp", "cagegrp", "ragegrp", "isim"))
   {
-    nage = nrow(age.parms)
+    if (is.null(ageless.parms))
+      stop("undefined 'ageless.parms'")
 
     if (is.null(age.parms))
       stop("undefined 'age.parms'")
@@ -226,16 +309,24 @@ SEIR.n.Age.Classes = function(file.name, sheets.names, differential.eqns.func=NU
     if (is.null(list.inits))
       stop("undefined 'list.inits'")
 
+    if (is.null(tmin.vect))
+      stop("undefined 'tmin.vect'")
 
-    list.parms <- list()
-    for(k in setdiff(names(age.parms), not.parms )){
-      list.parms[[k]] <- age.parms[,k]
-    }
+    nage = nrow(age.parms)
+
+    list.parms.for.lsoda <- list(tmin.vect=tmin.vect)
+
+    for(k in setdiff(names(ageless.parms), not.parms ))
+      list.parms.for.lsoda[[k]] <- ageless.parms[,k]
+
+    for(k in setdiff(names(age.parms), not.parms ))
+      list.parms.for.lsoda[[k]] <- age.parms[,k]
+
     for(k in setdiff(names(age.age.parms), not.parms ))
     {
       temp<- array(NA, c(nage,nage))
-      temp[cbind(age.age.parms$cagegrp, age.age.parms$ragegrp)] <- age.age.parms[,k]
-      list.parms[[k]] <- temp
+      temp[cbind(age.age.parms$ragegrp, age.age.parms$cagegrp)] <- age.age.parms[,k]
+      list.parms.for.lsoda[[k]] <- temp
       if(any(is.na(temp)))
         stop(paste0(k," matrix has some missing entries"))
     }
@@ -252,7 +343,7 @@ SEIR.n.Age.Classes = function(file.name, sheets.names, differential.eqns.func=NU
         }else{list.inits[[k]] <- vec.inits[k] }
       }
 
-      eval.differential.eqns.func(list.inits, list.parms)
+      eval.differential.eqns.func(list.inits, list.parms, time)
 
 
     } #end of function calculate_derivatives
@@ -261,7 +352,8 @@ SEIR.n.Age.Classes = function(file.name, sheets.names, differential.eqns.func=NU
     ### Solver for Ordinary Differential Equations (ODE), Switching Automatically
     ### Between Stiff and Non-stiff Methods
     ###---------------------------------------------------------------------------------
-
+    #browser()
+    list.parms  = list.parms.for.lsoda
     output <-  lsoda(y = unlist(list.inits),
                      times = time,
                      func =  calculate_derivatives,
@@ -271,39 +363,74 @@ SEIR.n.Age.Classes = function(file.name, sheets.names, differential.eqns.func=NU
     return(output)
   }  # END  of function SEIR.n.Age.Classes.within.loop
 
+  lean.ssa.adaptivetau <- function(sim_number, init.conditions, params,racines,etiquettes)
+  {
+    if(!is.na(racines[sim_number]))
+      set.seed(racines[sim_number])
+
+    #browser()
+   #simu.all = ssa.exact ( init.values = init.conditions,  # need to remove argument tl.params
+    simu.all = ssa.adaptivetau(init.values = init.conditions,
+                           transitions = transitions.for.adaptivetau,
+                           rateFunc = ratefunc.for.adaptivetau,
+                           params = params,
+                           tf = tmax,
+                           tl.params = list(epsilon=0.01))
+
+    temps = sort(c(simu.all[,"time"],seq(tmax-1)))
+    int.whereabouts  = which(temps %in% 0:tmax)   # int.whereabouts  such that temps   [int.whereabouts] = 0:tmax
+    int.whereabouts2 = int.whereabouts - (0:tmax) # int.whereabouts2 such that simu.all[int.whereabouts2,"time"][k+1] is largest time <= k
+    simu.lean = as.data.frame(simu.all[int.whereabouts2,]) # snapshots at t= 0, 1, 2, ... , tmax
+    simu.lean$time = 0:tmax
+    simu.lean$what.is.it = etiquettes[sim_number]
+
+    list(simu.all=simu.all,simu.lean=simu.lean)
+  }
   ################################################################
   #        To run the example
   ################################################################
 
+
   excluded_names <- c("tmin", "tmax","agegrp","cagegrp","ragegrp","isim")
 
-  nSim <- max(time_stuff$isim)
-  listOut <- list()
+  nTimeSegments <- max(parm_value_1d$isim)
   previous.tmax <- 0
-  out<-NULL
   df.out = c()
+  CTMC.parms.info = list(tmin.vect=sort(unique(parm_value_1d$tmin)),parms.0d=list(),parms.1d=list(),parms.2d=list())
+  updated_init_list = init_list
 
-  for(i in seq(1, nSim, 1))
+  for(segment in seq(1, nTimeSegments, 1))
   {
-    parameter.by.age     <- subset(time_stuff  , isim == i)
-    parameter.by.age.age <- subset(time_stuff_m, isim == i)
 
-    tmin <- unique(c(parameter.by.age$tmin, parameter.by.age.age$tmin))
-    tmax <- unique(c(parameter.by.age$tmax, parameter.by.age.age$tmax))
+    this.parameter.by.nothing <- subset(parm_value_0d, isim == segment)
+    this.parameter.by.age     <- subset(parm_value_1d, isim == segment)
+    this.parameter.by.age.age <- subset(parm_value_2d, isim == segment)
+    CTMC.parms.info$parms.0d[[segment]] = this.parameter.by.nothing
+    CTMC.parms.info$parms.1d[[segment]] = this.parameter.by.age
+    CTMC.parms.info$parms.2d[[segment]] = this.parameter.by.age.age
+
+    tmin <- unique(c(this.parameter.by.nothing$tmin, this.parameter.by.age$tmin, this.parameter.by.age.age$tmin))
+    tmax <- unique(c(this.parameter.by.nothing$tmax, this.parameter.by.age$tmax, this.parameter.by.age.age$tmax))
+
 
     if(length(tmin)>1 || length(tmax)>1 || tmin>=tmax )
-      stop(paste0("Unexpected pattern in tmin, tmax for interval ", i))
+      stop(paste0("Unexpected pattern in tmin, tmax for interval ", segment))
 
-    tt <- seq(0, tmax - tmin, by = 1)
+  # tt <- seq(0   , tmax - tmin, by = 1)
+    tt <- seq(tmin, tmax       , by = 1)
 
     if(tmin != previous.tmax)
       stop(paste(interval.label , "\n  Interval lower bound not equal to previous interval upper bound"))
 
+
+
     previous.tmax <- tmax
     out <- SEIR.n.Age.Classes.within.loop( time=tt,
-                                           age.parms = parameter.by.age,
-                                           age.age.parms = parameter.by.age.age,
-                                           list.inits = init_list)
+                                           tmin.vect = CTMC.parms.info$tmin.vect,
+                                           ageless.parms = this.parameter.by.nothing,
+                                           age.parms     = this.parameter.by.age,
+                                           age.age.parms = this.parameter.by.age.age,
+                                           list.inits = updated_init_list)
 
     out <- as.data.frame(out)
     # ode/lsoda Output diagnostic #######################
@@ -311,8 +438,8 @@ SEIR.n.Age.Classes = function(file.name, sheets.names, differential.eqns.func=NU
 
     out$time <- seq(tmin,tmax,1)
     out_for_init <- out %>%
-      slice(nrow(out)) %>%
-      pivot_longer(-time)
+      slice(nrow(out)) %>%    # select last row
+      pivot_longer(-time)     # fat to skinny
     init <- out_for_init$value
     names(init) <- out_for_init$name
 
@@ -322,47 +449,78 @@ SEIR.n.Age.Classes = function(file.name, sheets.names, differential.eqns.func=NU
 
 
     #updating the initial values
-    for(k in 1:length(init_list)){
-      init_list[[k]][1:nagegrp] <- init[seq(nagegrp*(k-1)+1,nagegrp*k)]
+    for(k in 1:length(updated_init_list)){
+      updated_init_list[[k]][1:nagegrp] <- init[seq(nagegrp*(k-1)+1,nagegrp*k)]
     }
 
-   if(i < nSim)
+   if(segment < nTimeSegments)
       out = out[-nrow(out),]
     # Add outputs to the list
     df.out = rbind(df.out,out)
-    listOut[[i]] <- out
-  } #end for(i in seq(1, nSim, 1))
 
-  resultat = list( differential.eqns.func = eval.differential.eqns.func ,
-                   eval.post.processing.func = eval.post.processing.func,
-                   post.processing.companion.kit = post.processing.companion.kit)
+  } #end for(segment in seq(1, nTimeSegments, 1))
+
+
+  CTMC.out=NULL
+  if(nagegrp == 1 && !is.null(CTMC.random.seeds))
+  {
+    iota.CTMC = seq(length(CTMC.random.seeds))
+    CTMC.etiquettes = paste("CTMC sim",iota.CTMC)
+    CTMC.list = lapply(iota.CTMC, FUN = lean.ssa.adaptivetau, unlist(init_list), CTMC.parms.info, CTMC.random.seeds, CTMC.etiquettes)
+    names(CTMC.list) = CTMC.etiquettes
+    CTMC.df = c()
+    for(k in CTMC.etiquettes)
+    {
+      CTMC.df = rbind(CTMC.df,CTMC.list[[k]]$simu.lean)
+      CTMC.list[[k]] = CTMC.list[[k]]$simu.all
+    }
+    CTMC.out=list(CTMC.list=CTMC.list,CTMC.df=CTMC.df)
+  }
+
+  #browser()
+  if(!is.null(CTMC.out))
+  {
+    resultat$CTMC.out = CTMC.out
+   #resultat$functions$CTMC.eqns.func = ratefunc.for.adaptivetau # always provide or not ?
+  }
 
   #BEGIN add on $solution.inflows, $solution.outflows and $solution to resultat
   solution = df.out
   if(any(also.get.flows == "inflows"))
   {
-    var.names = c ( t( outer( paste0("inflows.",raw.compartments),agegrp.suffix,paste0) ) )
+   # var.names = c ( t( outer( paste0("inflows.",raw.compartments),agegrp.suffix,paste0) ) )
+    var.names = paste0("inflows.",raw.compartments.age)
     resultat$solution.inflows  = solution[,c("time",var.names)]
-    colnames( resultat$solution.inflows) = c("time",raw.compartments.age)
+    colnames( resultat$solution.inflows) = c("time",pretty.compartments.age)
   }
   if(any(also.get.flows == "outflows"))
   {
-    var.names = c ( t( outer( paste0("outflows.",raw.compartments),agegrp.suffix,paste0) ) )
+    #var.names = c ( t( outer( paste0("outflows.",raw.compartments),agegrp.suffix,paste0) ) )
+    var.names = paste0("outflows.",raw.compartments.age)
     resultat$solution.outflows  = solution[,c("time",var.names)]
-    colnames( resultat$solution.outflows) = c("time",raw.compartments.age)
+    resultat$solution.outflows[,-1] = - resultat$solution.outflows[,-1]
+    colnames( resultat$solution.outflows) = c("time",pretty.compartments.age)
   }
   resultat$solution = solution[,c("time",raw.compartments.age)]
+  colnames( resultat$solution) = c("time",pretty.compartments.age)
   #END add on $solution.inflows, $solution.outflows and $solution to resultat
 
-  resultat$input.info = list(parms.1d=tmp_time_stuff, parms.2d=tmp_time_stuff_m, initial.conditions=raw.init.conditions,
+  resultat$input.info = list(parms.0d=tmp_parm_value_0d, parms.1d=tmp_parm_value_1d, parms.2d=tmp_parm_value_2d, initial.conditions=raw.init.conditions,
                              auxiliary.vars=auxiliary.vars, model.flow=model_flows_tmp, post.processing=code.body.df)
   resultat$input.info.verbatim = input.info.verbatim
 
   eval.post.processing.func(resultat)
 } #end of SEIR.n.Age.Classes function
 
-#' Get SEIR model inputs
+#' Get model chunk
 #' @export
+#' @param model_flows A string
+#' @param init.cond A string
+#' @param init.cond.numeric.vars A vector string
+#' @param which.flow A string
+#' @param NewFrom A string
+#' @param NewTo A string
+
 get.silly.model.chunk = function(model_flows, init.cond, init.cond.numeric.vars, which.flow, NewFrom, NewTo)
 {
   #browser()
@@ -393,26 +551,32 @@ get.silly.model.chunk = function(model_flows, init.cond, init.cond.numeric.vars,
   silly_init = rbind(silly_init,init.slack)
 
   #BEGIN handle the orphans
+  n.age.grp = length(init.cond.numeric.vars)
+  zeros.char = paste0("c(",paste(rep("0",n.age.grp),collapse=","),")")
   model.inflow.orphans = model.outflow.orphans = c()
   if(length(inflow.orphans) > 0)
   {
     model.inflow.orphans = silly_model[rep(1,length(inflow.orphans)),]
     model.inflow.orphans$To = paste0(NewTo,inflow.orphans)
-    model.inflow.orphans$expression = "0"
+    model.inflow.orphans$expression = zeros.char
   }
   if(length(outflow.orphans) > 0)
   {
     model.outflow.orphans = silly_model[rep(1,length(outflow.orphans)),]
     model.outflow.orphans$From = paste0(NewFrom,outflow.orphans)
-    model.outflow.orphans$expression = "0"
+    model.outflow.orphans$expression = zeros.char
   }
   #END handle the orphans
 
   list(init=silly_init , model = rbind(silly_model,model.inflow.orphans,model.outflow.orphans) )
 }
 
-#' Get other SEIR model inputs
+#' Put model parameters into a list
 #' @export
+#' @param df.parms.1d A data frame
+#' @param df.parms.2d A data frame
+#' @param these.are.not.parms A data frame
+
 smooch.parms.df.into.list = function(df.parms.1d,df.parms.2d,these.are.not.parms)
 { # takes 1d and 2d parms in data.frame format and makes a list.
   # for 2d parms, they are in skinny format in input data frame, but are square matrices in the output list.
@@ -433,9 +597,10 @@ smooch.parms.df.into.list = function(df.parms.1d,df.parms.2d,these.are.not.parms
   as.list(c(list.parm.1d,list.parm.2d))
 }
 
-
-#' Ever been here function
+#' Another SEIR model function
 #' @export
+#' @param SEIR.object A SEIR model object
+
 ever.been.here = function(SEIR.object)
 {
   n_agegrp = ncol(SEIR.object$input.info$initial.conditions) - 1 # number of age groups
@@ -490,41 +655,29 @@ ever.been.here = function(SEIR.object)
   list(ever.been.here.from.inflows=ever.been.here.from.inflows, ever.been.here.from.outflows=ever.been.here.from.outflows)
 }
 
-if(FALSE)
-{
-  # Compare 1 age group results with 5 age groups
-  results.1age  = "provide some object"
-  results.5ages = "provide some object"
-
-  mat.range = c()
-  vars.to.check = setdiff(colnames(results.1age$solution),c( "time","N_tot" ))
-  for(this.box in vars.to.check )
-  {
-    somme = apply(results.5ages$solution[,paste0(this.box,1:5)],1,sum)
-    actual.diff = results.1age$solution[,this.box] - somme
-    rel.diff = actual.diff /( 1e-9 +  pmax(results.1age$solution[,this.box] , somme) )
-    this.range = c(range(rel.diff ) , range(actual.diff))
-    mat.range = rbind(mat.range,this.range)
-    cat("\n",this.box,"\t", this.range)
-  }
-  rownames(mat.range) = vars.to.check
-  matplot(seq(nrow(mat.range)),mat.range[,1:2],main='Relative differences')
-  matplot(seq(nrow(mat.range)),mat.range[,3:4],main='Actual   differences')
-}
-
-#' Save SEIR model to Excel file
+#' Save SEIR model as Excel file
 #' @export
+#' @importFrom openxlsx write.xlsx
+#' @param input.info.list A data frame
+#' @param file_name A string
+#' @param map.names A vector string
+
 SaveModelInExcel = function(input.info.list,file_name,map.names)
 {  # map.names is named vector saying map.names["parms.1d"  ] =  "Parameters by Age"
  # map.names = unlist(sheet_names) # allows to map "parms.1d" into "Parameters by Age" for instance
   names(input.info.list) = map.names[names(input.info.list)] # $parms.1d is now $'Parameters by Age'
   openxlsx::write.xlsx(input.info.list, file_name, colWidths = c(NA, "auto", "auto"))
-
 }
 
-
-#' Parameter sweep function
+#' Perform parameter sweeping
 #' @export
+#' @importFrom lhs randomLHS
+#' @importFrom stats qunif runif
+#' @importFrom triangle qtriangle
+#' @param SEIR.object A SEIR model object
+#' @param parm.cloud.grid.specs A data frame
+#' @param only.show.parms.to.try A logical
+
 try.various.parms.values = function(SEIR.object,parm.cloud.grid.specs,only.show.parms.to.try=FALSE)
 {
   #parm.cloud.grid.specs is a list that should contain the following 7 things
@@ -602,13 +755,15 @@ try.various.parms.values = function(SEIR.object,parm.cloud.grid.specs,only.show.
   sheet_names_for_sweep = SEIR.object$input.info           # Can use either of those two lines ... in theory (not tested)
   sheet_names_for_sweep = SEIR.object$input.info.verbatim  # Can use either of those two lines ... in theory (not tested)
 
-  baseline.parms.1d = SEIR.object$input.info$parms.1d  # data frame of 1d parameters
-  baseline.parms.2d = SEIR.object$input.info$parms.2d  # data frame of 2d parameters
+  baseline.parms.0d = SEIR.object$input.info$parms.0d  # data frame of 0d parameters (i.e. not by age)
+  baseline.parms.1d = SEIR.object$input.info$parms.1d  # data frame of 1d parameters (i.e. by age)
+  baseline.parms.2d = SEIR.object$input.info$parms.2d  # data frame of 2d parameters (i.e. by age and age)
 
-  post.process.kit  = SEIR.object$post.processing.companion.kit
+  post.process.kit  = SEIR.object$functions$post.processing.companion.kit
+  agegrp.glue       = SEIR.object$input.info.verbatim$agegrp.glue
+  CTMC.racines.alea = SEIR.object$input.info.verbatim$CTMC.random.seeds
 
   flows.of.interest = gsub("solution.","",intersect(names(SEIR.object),c("solution.inflows","solution.outflows")))
-
 
   list.sweep = list() #        store results in list  ...
   df.sweep = c()      # ... or store results in data.frame
@@ -627,27 +782,28 @@ try.various.parms.values = function(SEIR.object,parm.cloud.grid.specs,only.show.
 
     cat("\n Doing",i,"of",nrow(parms.to.try),"simulations :",this.label)
 
+    parms.0d = baseline.parms.0d  # data frame of 0d parameters to be altered
     parms.1d = baseline.parms.1d  # data frame of 1d parameters to be altered
     parms.2d = baseline.parms.2d  # data frame of 2d parameters to be altered
 
     # Modify the parameter values at the specified tmin.alter.scope
     for(parameter in names(row)) {
-      if(parameter %in% names(parms.1d)) {
+      if(parameter %in% names(parms.0d))
+        parms.0d[parms.0d$tmin %in% tmin.alter.scope, parameter] = operation_func(subset(parms.0d,tmin %in% tmin.alter.scope)[[parameter]] , row[[parameter]] )
+      else if(parameter %in% names(parms.1d))
         parms.1d[parms.1d$tmin %in% tmin.alter.scope, parameter] = operation_func(subset(parms.1d,tmin %in% tmin.alter.scope)[[parameter]] , row[[parameter]] )
-      } else if(parameter %in% names(parms.2d)) {
+      else if(parameter %in% names(parms.2d))
         parms.2d[parms.2d$tmin %in% tmin.alter.scope, parameter] = operation_func(subset(parms.2d,tmin %in% tmin.alter.scope)[[parameter]] , row[[parameter]] )
-      } else {
+      else
         stop(paste(parameter,"was not found in any parameter sheet"))# Parameter was not found in any parameter sheet
-      }
+
     }
 
+    sheet_names_for_sweep$parms.0d = parms.0d # altered data.frame goes in sheet_names_for_sweep
     sheet_names_for_sweep$parms.1d = parms.1d # altered data.frame goes in sheet_names_for_sweep
     sheet_names_for_sweep$parms.2d = parms.2d # altered data.frame goes in sheet_names_for_sweep
 
-    this.result = SEIR.n.Age.Classes(file_name,sheet_names_for_sweep,also.get.flows=flows.of.interest,post.processing.companion.kit = post.process.kit)
-
-   # # Add on other time series like cumulative incidence
-   # this.result$solution = Add.Other.Outcomes(this.result$solution,parms.1d,"third argument currently inoperant")
+    this.result = SEIR.n.Age.Classes(file_name,sheet_names_for_sweep,also.get.flows=flows.of.interest,post.processing.companion.kit = post.process.kit, agegrp.glue=agegrp.glue, CTMC.random.seeds=CTMC.racines.alea)
 
     # Add on univariate stuff like maxI or maxI.time to outcomes.summary.df
     summary.template = data.frame(etiquette = this.label)
@@ -681,6 +837,7 @@ try.various.parms.values = function(SEIR.object,parm.cloud.grid.specs,only.show.
     df.sweep = rbind(df.sweep,this.result$solution)
   }
   rownames(outcomes.summary.df) = c()
+  outcomes.summary.df$etiquette = c() # drop etiquette.  Not really useful to keep.
 
   list(parm.cloud.grid.specs = parm.cloud.grid.specs,
        parms.to.try = parms.to.try.verbose,
@@ -691,8 +848,14 @@ try.various.parms.values = function(SEIR.object,parm.cloud.grid.specs,only.show.
        list.sweep=list.sweep)
 }
 
-#' Compute correlation between parameters and an outcome variable
+#' Assess covariate importance
 #' @export
+#' @importFrom stats cor lm time
+#' @param don A data frame
+#' @param X A numerical vector
+#' @param Y A numerical vector
+#' @param method A string
+
 Assess.covariate.importance = function (don,X,Y,method)
 {
   #  if(method == "ANOVA SS type ???")

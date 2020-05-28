@@ -2,7 +2,7 @@
 % Please edit documentation in R/UtilitiesChunks.R
 \name{verbose.save}
 \alias{verbose.save}
-\title{Save R data}
+\title{Verbose save function}
 \usage{
 verbose.save(
   object.name,
@@ -12,6 +12,15 @@ verbose.save(
   time.stamp = gsub(":", "-", Sys.time())
 )
 }
+\arguments{
+\item{object.name}{A string}
+
+\item{path.with.trailing.slash}{A string}
+
+\item{prefix.suffix}{A string}
+
+\item{time.stamp}{A time object}
+}
 \description{
-Save R data
+Verbose save function
 }

@@ -2,10 +2,17 @@
 % Please edit documentation in R/SEIR.n.Age.Classes.and.friends.R
 \name{smooch.parms.df.into.list}
 \alias{smooch.parms.df.into.list}
-\title{Get other SEIR model inputs}
+\title{Put model parameters into a list}
 \usage{
 smooch.parms.df.into.list(df.parms.1d, df.parms.2d, these.are.not.parms)
 }
+\arguments{
+\item{df.parms.1d}{A data frame}
+
+\item{df.parms.2d}{A data frame}
+
+\item{these.are.not.parms}{A data frame}
+}
 \description{
-Get other SEIR model inputs
+Put model parameters into a list
 }
