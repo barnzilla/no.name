@@ -1,7 +1,8 @@
-  #' Render a scatter plot
+#' Render a scatter plot
 #' @export
 #' @importFrom ggplot2 aes coord_flip element_blank element_text geom_bar geom_point geom_text ggplot scale_x_continuous scale_y_continuous theme theme_minimal xlab ylab
 #' @importFrom plotly ggplotly
+#' @importFrom scales label_comma
 #' @param x A vector
 #' @param y A vector
 #' @param x_label_text A string
@@ -19,8 +20,8 @@ get_scatter_plot <- function(x, y, x_label_text = deparse(substitute(x)), y_labe
 		geom_point(color = "#428bca", size = geom_point_size) +
 		xlab(x_label_text) +
 		ylab(y_label_text) +
-		scale_y_continuous(labels = comma) +
-		scale_x_continuous(labels = comma) +
+		scale_y_continuous(labels = label_comma()) +
+		scale_x_continuous(labels = label_comma()) +
 		theme_minimal() +
 		theme(
 			plot.title = element_text(size = element_text_size),
@@ -39,6 +40,7 @@ get_scatter_plot <- function(x, y, x_label_text = deparse(substitute(x)), y_labe
 #' @importFrom forcats fct_reorder
 #' @importFrom ggplot2 aes coord_flip element_blank element_text geom_bar geom_point geom_text ggplot scale_x_continuous scale_y_continuous theme theme_minimal xlab ylab
 #' @importFrom plotly ggplotly
+#' @importFrom tibble tibble
 #' @param outcome_variable A string
 #' @param parameters The parms.tried.df data frame
 #' @param outcomes The outcomes.summary.df data frame
