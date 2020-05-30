@@ -1,1 +1,1 @@
-utils::globalVariables(c('agegrp', 'cagegrp', 'ragegrp', 'code', 'activation', 'NAME', 'multiplier', 'From', 'fromstar', 'closing.parenthesis', 'isim', 'interval.label', 'time', 'tmin', 'file_name'))
+utils::globalVariables(c('agegrp', 'cagegrp', 'ragegrp', 'code', 'activation', 'NAME', 'multiplier', 'From', 'fromstar', 'closing.parenthesis', 'isim', 'interval.label', 'time', 'tmin', 'file_name', 'comma', 'parms.tried.df', 'outcomes.summary.df', 'tibble', 'variable', 'coefficient'))
