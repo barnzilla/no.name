@@ -6,7 +6,6 @@
 #' @param nom_du_package A string
 #' @param try.this A string
 #' @param verbose A logical
-#'
 
 fetch.package =function(nom_du_package,try.this=c("nothing","load","install"),verbose=FALSE)
 {
@@ -44,6 +43,7 @@ fetch.package =function(nom_du_package,try.this=c("nothing","load","install"),ve
 
 #' Convert a tibble to a data frame
 #' @export
+#' @importFrom dplyr is.tbl
 #' @param data.frame.ish A tibble
 #' @param rename A vector or data frame
 
