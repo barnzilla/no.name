@@ -1,6 +1,6 @@
 Package: sweepr
 Title: Run Parameter Sweeps on SEIR Models
-Version: 0.11.1
+Version: 0.11.2
 Authors@R: 
     c(person(given = "Claude",
              family = "Nadeau",
@@ -26,6 +26,8 @@ Authors@R:
 Description: Runs SEIR model and performs parameter sweeps on
     SEIR model output.
 License: CC BY 4.0
+Depends: 
+    R (>= 2.10)
 Encoding: UTF-8
 Language: en
 LazyData: true
@@ -35,10 +37,14 @@ Imports:
     adaptivetau,
     deSolve,
     dplyr,
+    forcats,
+    ggplot2,
     janitor,
     lhs,
     magrittr,
     openxlsx,
+    plotly,
     readxl,
+    scales,
     tidyr,
     triangle
