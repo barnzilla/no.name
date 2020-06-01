@@ -1,6 +1,6 @@
 Package: sweepr
 Title: Run Parameter Sweeps on SEIR Models
-Version: 0.11.5
+Version: 0.11.6
 Authors@R: 
     c(person(given = "Claude",
              family = "Nadeau",
@@ -39,8 +39,10 @@ Imports:
     adaptivetau,
     deSolve,
     dplyr,
+    DT,
     forcats,
     ggplot2,
+    htmlwidgets,
     janitor,
     lhs,
     magrittr,

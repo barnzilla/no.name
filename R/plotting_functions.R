@@ -57,7 +57,7 @@ get_scatter_plot <- function(x, y, x_label_text = deparse(substitute(x)), y_labe
 #' @param height A numeric
 
 get_tornado_plot <- function(outcome_variable, parameters = parms.tried.df, outcomes = outcomes.summary.df, method = "kendall-partial-correlation-slow", bin_width = 0.5, element_text_size = 12, order_by_absolute_value = FALSE, add_label = FALSE, width = NULL, height = NULL) {
-  if(is.null(outcome_variable) | is.null(parameters) | is.null(outcomes) | is.null(method) | is.null(outcome_variable)) {
+  if(is.null(outcome_variable) | is.null(parameters) | is.null(outcomes) | is.null(method)) {
     return()
   } else {
     what.matters = Assess.covariate.importance(outcomes,names(parameters), outcome_variable, method)
@@ -92,4 +92,42 @@ get_tornado_plot <- function(outcome_variable, parameters = parms.tried.df, outc
 		height = height
     )
   }
+}
+
+#' Render a tornado table
+#' @export
+#' @importFrom DT datatable
+#' @importFrom htmlwidgets JS
+#' @param outcome_variable A string
+#' @param parameters The parms.tried.df data frame
+#' @param outcomes The outcomes.summary.df data frame
+#' @param method A string
+
+get_tornado_table <- function(outcome_variable, parameters = parms.tried.df, outcomes = outcomes.summary.df, method = "kendall-partial-correlation-slow") {
+	if(is.null(outcome_variable) | is.null(parameters) | is.null(outcomes) | is.null(method)) {
+		return()
+	  } else {
+		what.matters = Assess.covariate.importance(outcomes,names(parameters), outcome_variable, method)
+		correlations <- tibble(variable = names(what.matters), coefficient = what.matters)
+		correlations$variable <- factor(correlations$variable)
+		tab <- tibble(Variable = correlations$variable, Method = rep(method, nrow(correlations)), Coefficient = round(correlations$coefficient, 3))
+		datatable(
+			tab,
+			extensions = c("Buttons", "Scroller"), 
+			rownames = FALSE,
+			options = list(
+			  columnDefs = list(list(visible = FALSE, targets = c())),
+			  pageLength = 50, 
+			  dom = "Bfrtip", 
+			  buttons = c("colvis", "copy", "csv", "excel", "pdf"), 
+			  deferRender = TRUE, 
+			  searchDelay = 500,
+			  initComplete = JS(
+				"function(settings, json) {",
+				"$(this.api().table().header()).css({'background-color': '#fff', 'color': '#111'});",
+				"}"
+			  )
+			)
+		)
+	}
 }
