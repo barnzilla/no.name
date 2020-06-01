@@ -10,7 +10,9 @@ get_scatter_plot(
   x_label_text = deparse(substitute(x)),
   y_label_text = deparse(substitute(y)),
   geom_point_size = 2,
-  element_text_size = 12
+  element_text_size = 12,
+  width = 756,
+  height = 500
 )
 }
 \arguments{
@@ -25,6 +27,10 @@ get_scatter_plot(
 \item{geom_point_size}{A numeric}
 
 \item{element_text_size}{A numeric}
+
+\item{width}{A numeric}
+
+\item{height}{A numeric}
 }
 \description{
 Render a scatter plot

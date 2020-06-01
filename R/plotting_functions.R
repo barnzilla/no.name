@@ -9,8 +9,10 @@
 #' @param y_label_text A string
 #' @param geom_point_size A numeric
 #' @param element_text_size A numeric
+#' @param width A numeric
+#' @param height A numeric
 
-get_scatter_plot <- function(x, y, x_label_text = deparse(substitute(x)), y_label_text = deparse(substitute(y)), geom_point_size = 2, element_text_size = 12) {
+get_scatter_plot <- function(x, y, x_label_text = deparse(substitute(x)), y_label_text = deparse(substitute(y)), geom_point_size = 2, element_text_size = 12, width = 756, height = 500) {
   if(is.null(x) | is.null(y)) {
     return()
   } else {
@@ -30,7 +32,9 @@ get_scatter_plot <- function(x, y, x_label_text = deparse(substitute(x)), y_labe
 			legend.text = element_blank(),
 			legend.title = element_blank(),
 			legend.position = "none"
-		)
+		),
+		width = width,
+		height = height
 	)
   }
 }
@@ -49,8 +53,10 @@ get_scatter_plot <- function(x, y, x_label_text = deparse(substitute(x)), y_labe
 #' @param element_text_size A numeric
 #' @param order_by_absolute_value A logical
 #' @param add_label A logical
+#' @param width A numeric
+#' @param height A numeric
 
-get_tornado_plot <- function(outcome_variable, parameters = parms.tried.df, outcomes = outcomes.summary.df, method = "kendall-partial-correlation-slow", bin_width = 0.5, element_text_size = 12, order_by_absolute_value = FALSE, add_label = FALSE) {
+get_tornado_plot <- function(outcome_variable, parameters = parms.tried.df, outcomes = outcomes.summary.df, method = "kendall-partial-correlation-slow", bin_width = 0.5, element_text_size = 12, order_by_absolute_value = FALSE, add_label = FALSE, width = 756, height = 500) {
   if(is.null(outcome_variable) | is.null(parameters) | is.null(outcomes) | is.null(method) | is.null(outcome_variable)) {
     return()
   } else {
@@ -81,7 +87,9 @@ get_tornado_plot <- function(outcome_variable, parameters = parms.tried.df, outc
 			legend.title = element_blank(),
 			legend.position = "none"
 		),
-		tooltip = "text"
+		tooltip = "text",
+		width = width,
+		height = height
     )
   }
 }

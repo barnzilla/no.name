@@ -12,7 +12,9 @@ get_tornado_plot(
   bin_width = 0.5,
   element_text_size = 12,
   order_by_absolute_value = FALSE,
-  add_label = FALSE
+  add_label = FALSE,
+  width = 756,
+  height = 500
 )
 }
 \arguments{
@@ -31,6 +33,10 @@ get_tornado_plot(
 \item{order_by_absolute_value}{A logical}
 
 \item{add_label}{A logical}
+
+\item{width}{A numeric}
+
+\item{height}{A numeric}
 }
 \description{
 Render a tornado plot
