@@ -12,7 +12,7 @@
 #' @param width A numeric
 #' @param height A numeric
 
-get_scatter_plot <- function(x, y, x_label_text = deparse(substitute(x)), y_label_text = deparse(substitute(y)), geom_point_size = 2, element_text_size = 12, width = 756, height = 500) {
+get_scatter_plot <- function(x, y, x_label_text = deparse(substitute(x)), y_label_text = deparse(substitute(y)), geom_point_size = 2, element_text_size = 12, width = NULL, height = NULL) {
   if(is.null(x) | is.null(y)) {
     return()
   } else {
@@ -56,7 +56,7 @@ get_scatter_plot <- function(x, y, x_label_text = deparse(substitute(x)), y_labe
 #' @param width A numeric
 #' @param height A numeric
 
-get_tornado_plot <- function(outcome_variable, parameters = parms.tried.df, outcomes = outcomes.summary.df, method = "kendall-partial-correlation-slow", bin_width = 0.5, element_text_size = 12, order_by_absolute_value = FALSE, add_label = FALSE, width = 756, height = 500) {
+get_tornado_plot <- function(outcome_variable, parameters = parms.tried.df, outcomes = outcomes.summary.df, method = "kendall-partial-correlation-slow", bin_width = 0.5, element_text_size = 12, order_by_absolute_value = FALSE, add_label = FALSE, width = NULL, height = NULL) {
   if(is.null(outcome_variable) | is.null(parameters) | is.null(outcomes) | is.null(method) | is.null(outcome_variable)) {
     return()
   } else {

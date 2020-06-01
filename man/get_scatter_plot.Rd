@@ -11,8 +11,8 @@ get_scatter_plot(
   y_label_text = deparse(substitute(y)),
   geom_point_size = 2,
   element_text_size = 12,
-  width = 756,
-  height = 500
+  width = NULL,
+  height = NULL
 )
 }
 \arguments{

@@ -7,14 +7,13 @@ output:
     toc: true
     fig_caption: yes
 vignette: >
-  %\VignetteIndexEntry{Introduction to the sweepr package}
+  %\VignetteIndexEntry{Introduction to the sweepr R package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 <style>
   img { width: 100%; height: auto; }
-  svg { width: 100% !important; height: auto !important; }
 </style>
 
 <img src="https://www.statcan.gc.ca/wet-boew4b/assets/sig-blk-en.svg" style = "max-width: 300px; height: auto; margin-top: 48px; margin-bottom: 24px; border: 0;" alt="logo">
@@ -40,7 +39,7 @@ devtools::install_github("barnzilla/sweepr")
 You can also download/install the source package using the `install.packages` function from the `utils` package, which is preinstalled in R.
 
 ```{r warning = FALSE, message = FALSE, eval = FALSE}
-utils::install.packages("https://github.com/barnzilla/r-package-sources/raw/master/sweepr_0.11.3.tar.gz", repos = NULL, type = "source")
+utils::install.packages("https://github.com/barnzilla/r-package-sources/raw/master/sweepr_0.11.5.tar.gz", repos = NULL, type = "source")
 ```
 
 ## Loading sweepr
@@ -169,15 +168,18 @@ You can render a scatter plot of any two vectors in the `outcomes_summary_df` da
 ```{r echo = FALSE}
 data("sweepr_demo")
 outcomes_summary_df <- outcomes.summary.df <- sweepr_demo$results
-parms.tried.df <- sweepr_demo$parameters
+parameters_swept <- sweepr_demo$parameters
 ```
 
 ```{r}
-get_scatter_plot(outcomes_summary_df$delta.overwrite, outcomes_summary_df$maxInc)
+get_scatter_plot(outcomes_summary_df$delta.overwrite, outcomes_summary_df$maxInc, height = 500, width = 756)
 ```
+  
+<br />
+<br />
 
 You can also render a tornado plot of any vector within the `outcomes_summary_df` dataframe.
 
 ```{r}
-get_tornado_plot("maxInc")
+get_tornado_plot(outcome_variable = "maxInc", parameters = parameters_swept, outcomes = outcomes_summary_df, height = 500, width = 756)
 ```

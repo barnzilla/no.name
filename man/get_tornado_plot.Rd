@@ -13,8 +13,8 @@ get_tornado_plot(
   element_text_size = 12,
   order_by_absolute_value = FALSE,
   add_label = FALSE,
-  width = 756,
-  height = 500
+  width = NULL,
+  height = NULL
 )
 }
 \arguments{
