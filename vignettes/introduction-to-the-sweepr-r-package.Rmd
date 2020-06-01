@@ -39,7 +39,7 @@ devtools::install_github("barnzilla/sweepr")
 You can also download/install the source package using the `install.packages` function from the `utils` package, which is preinstalled in R.
 
 ```{r warning = FALSE, message = FALSE, eval = FALSE}
-utils::install.packages("https://github.com/barnzilla/r-package-sources/raw/master/sweepr_0.11.5.tar.gz", repos = NULL, type = "source")
+utils::install.packages("https://github.com/barnzilla/r-package-sources/raw/master/sweepr_0.11.6.tar.gz", repos = NULL, type = "source")
 ```
 
 ## Loading sweepr
@@ -119,14 +119,14 @@ str(parm_cloud_grid_specs)
 Next, check the size of the parameter sweep (i.e. number of scenarios, number of parameters).
 
 ```{r}
-sweep_size <- try.various.parms.values(
+parameter_sweep_size <- try.various.parms.values(
   baseline_results,
   parm_cloud_grid_specs,
   only.show.parms.to.try = TRUE
 )
 
 # Number of scenarios, number of parameters
-dim(sweep_size$parms.to.try)
+dim(parameter_sweep_size$parms.to.try)
 ```
 
 ### Running the parameter sweep
@@ -163,7 +163,7 @@ load("c:/users/your_username/desktop/This file contains an R object called param
 
 ### Visualizing the results
 
-You can render a scatter plot of any two vectors in the `outcomes_summary_df` dataframe.
+You can render a scatter plot of any two vectors in the `outcomes_summary_df` data frame.
 
 ```{r echo = FALSE}
 data("sweepr_demo")
@@ -178,8 +178,34 @@ get_scatter_plot(outcomes_summary_df$delta.overwrite, outcomes_summary_df$maxInc
 <br />
 <br />
 
-You can also render a tornado plot of any vector within the `outcomes_summary_df` dataframe.
+You can also render a tornado plot of any vector within the `outcomes_summary_df` data frame.
 
 ```{r}
+get_tornado_plot(outcome_variable = "maxInc", parameters = parameters_swept, outcomes = outcomes_summary_df, height = 500, width = 756)
+```
+
+<br />
+<br />
+
+You can also render a tornado table, which tabulates all of the values from the tornado plot.
+
+```{r}
+get_tornado_table(outcome_variable = "maxInc", parameters = parameters_swept, outcomes = outcomes_summary_df)
+```
+
+
+## Demo data
+
+Example data from a parameter sweep comes with the `sweepr` R package. You can use this data to examine the structure of the output, or to test some of the functions in the `sweepr` R package (e.g., `get_tornado_plot`).
+
+```{r eval = FALSE}
+# Load demo data
+data("sweepr_demo")
+
+# Define parameters and results
+parameters_swept <- sweepr_demo$parameters
+outcomes_summary_df <- sweepr_demo$results
+
+# Render a tornado plot
 get_tornado_plot(outcome_variable = "maxInc", parameters = parameters_swept, outcomes = outcomes_summary_df, height = 500, width = 756)
 ```
