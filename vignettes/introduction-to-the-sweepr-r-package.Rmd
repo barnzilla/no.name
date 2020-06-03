@@ -25,6 +25,10 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r klippy, echo=FALSE, include=TRUE}
+klippy::klippy(position = c("top", "right"))
+```
+
 ## Installing sweepr
 ### GitHub
 
@@ -39,7 +43,11 @@ devtools::install_github("barnzilla/sweepr")
 You can also download/install the source package using the `install.packages` function from the `utils` package, which is preinstalled in R.
 
 ```{r warning = FALSE, message = FALSE, eval = FALSE}
-utils::install.packages("https://github.com/barnzilla/r-package-sources/raw/master/sweepr_0.11.6.tar.gz", repos = NULL, type = "source")
+utils::install.packages(
+  pkgs = "https://github.com/barnzilla/r-package-sources/raw/master/sweepr_0.11.7.tar.gz",
+  repos = NULL, 
+  type = "source"
+)
 ```
 
 ## Loading sweepr
@@ -172,7 +180,12 @@ parameters_swept <- sweepr_demo$parameters
 ```
 
 ```{r}
-get_scatter_plot(outcomes_summary_df$delta.overwrite, outcomes_summary_df$maxInc, height = 500, width = 756)
+get_scatter_plot(
+  x = outcomes_summary_df$delta.overwrite, 
+  y = outcomes_summary_df$maxInc, 
+  height = 500, 
+  width = 756
+)
 ```
   
 <br />
@@ -181,7 +194,13 @@ get_scatter_plot(outcomes_summary_df$delta.overwrite, outcomes_summary_df$maxInc
 You can also render a tornado plot of any vector within the `outcomes_summary_df` data frame.
 
 ```{r}
-get_tornado_plot(outcome_variable = "maxInc", parameters = parameters_swept, outcomes = outcomes_summary_df, height = 500, width = 756)
+get_tornado_plot(
+  outcome_variable = "maxInc", 
+  parameters = parameters_swept, 
+  outcomes = outcomes_summary_df, 
+  height = 500, 
+  width = 756
+)
 ```
 
 <br />
@@ -190,7 +209,11 @@ get_tornado_plot(outcome_variable = "maxInc", parameters = parameters_swept, out
 You can also render a tornado table, which tabulates all of the values from the tornado plot.
 
 ```{r}
-get_tornado_table(outcome_variable = "maxInc", parameters = parameters_swept, outcomes = outcomes_summary_df)
+get_tornado_table(
+  outcome_variable = "maxInc", 
+  parameters = parameters_swept, 
+  outcomes = outcomes_summary_df
+)
 ```
 
 

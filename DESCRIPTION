@@ -1,6 +1,6 @@
 Package: sweepr
 Title: Run Parameter Sweeps on SEIR Models
-Version: 0.11.6
+Version: 0.11.7
 Authors@R: 
     c(person(given = "Claude",
              family = "Nadeau",
@@ -55,4 +55,5 @@ Imports:
     triangle
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    klippy
