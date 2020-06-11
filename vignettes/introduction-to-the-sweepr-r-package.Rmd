@@ -230,5 +230,11 @@ parameters_swept <- sweepr_demo$parameters
 outcomes_summary_df <- sweepr_demo$results
 
 # Render a tornado plot
-get_tornado_plot(outcome_variable = "maxInc", parameters = parameters_swept, outcomes = outcomes_summary_df, height = 500, width = 756)
+get_tornado_plot(
+  outcome_variable = "maxInc", 
+  parameters = parameters_swept, 
+  outcomes = outcomes_summary_df, 
+  height = 500, 
+  width = 756
+)
 ```
