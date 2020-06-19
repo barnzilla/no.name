@@ -1,10 +1,10 @@
 Package: sweepr
 Title: Run Parameter Sweeps on SEIR Models
-Version: 0.11.7
+Version: 0.12.0
 Authors@R: 
     c(person(given = "Claude",
              family = "Nadeau",
-             role = "aut",
+             role = c("aut", "cre"),
              email = "claude.nadeau.statcan@gccollaboration.ca"),
       person(given = "Maikol",
              family = "Diasparra",
@@ -12,7 +12,7 @@ Authors@R:
              email = "maikol.diasparra.statcan@gccollaboration.ca"),
       person(given = "Joel",
              family = "Barnes",
-             role = c("aut", "cre"),
+             role = "aut",
              email = "joel.barnes.statcan@gccollaboration.ca",
              comment = c(ORCID = "0000-0002-7621-9020")),
       person(given = "Deirdre",
@@ -43,17 +43,15 @@ Imports:
     forcats,
     ggplot2,
     htmlwidgets,
-    janitor,
     lhs,
     magrittr,
     openxlsx,
     plotly,
     readxl,
     scales,
-    tibble,
     tidyr,
     triangle
 Suggests: 
+    klippy,
     knitr,
-    rmarkdown,
-    klippy
+    rmarkdown

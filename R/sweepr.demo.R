@@ -10,4 +10,4 @@
 #'   ...
 #' }
 #' @source \url{http://www.diamondse.info/}
-"sweepr_demo"
+"sweepr.demo"

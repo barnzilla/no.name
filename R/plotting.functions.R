@@ -1,18 +1,37 @@
 #' Render a scatter plot
+#'
 #' @export
+#'
 #' @importFrom ggplot2 aes coord_flip element_blank element_text geom_bar geom_point geom_text ggplot scale_x_continuous scale_y_continuous theme theme_minimal xlab ylab
 #' @importFrom plotly ggplotly
 #' @importFrom scales label_comma
-#' @param x A vector
-#' @param y A vector
-#' @param x_label_text A string
-#' @param y_label_text A string
-#' @param geom_point_size A numeric
-#' @param element_text_size A numeric
-#' @param width A numeric
-#' @param height A numeric
+#'
+#' @param x a numeric vector.
+#' @param y a numeric vector.
+#' @param x_label_text a character string.
+#' @param y_label_text a character string.
+#' @param geom_point_size a numeric value.
+#' @param element_text_size a numeric value.
+#' @param width an integer.
+#' @param height an integer.
+#'
+#' @examples
+#' # Load demo data
+#' data("sweepr.demo")
+#' 
+#' # Define results
+#' outcomes.summary.df <- sweepr.demo$results
+#'
+#' get.scatter.plot(
+#'   x = outcomes.summary.df$delta.overwrite, 
+#'   y = outcomes.summary.df$maxInc, 
+#'   height = 500, 
+#'   width = 756
+#' )
+#'
+#' @return none.
 
-get_scatter_plot <- function(x, y, x_label_text = deparse(substitute(x)), y_label_text = deparse(substitute(y)), geom_point_size = 2, element_text_size = 12, width = NULL, height = NULL) {
+get.scatter.plot <- function(x, y, x_label_text = deparse(substitute(x)), y_label_text = deparse(substitute(y)), geom_point_size = 2, element_text_size = 12, width = NULL, height = NULL) {
   if(is.null(x) | is.null(y)) {
     return()
   } else {
@@ -40,27 +59,48 @@ get_scatter_plot <- function(x, y, x_label_text = deparse(substitute(x)), y_labe
 }
 
 #' Render a tornado plot
+#' 
 #' @export
+#' 
 #' @importFrom forcats fct_reorder
 #' @importFrom ggplot2 aes coord_flip element_blank element_text geom_bar geom_point geom_text ggplot scale_x_continuous scale_y_continuous theme theme_minimal xlab ylab
 #' @importFrom plotly ggplotly
-#' @importFrom tibble tibble
-#' @param outcome_variable A string
-#' @param parameters The parms.tried.df data frame
-#' @param outcomes The outcomes.summary.df data frame
-#' @param method A string
-#' @param bin_width A numeric
-#' @param element_text_size A numeric
-#' @param order_by_absolute_value A logical
-#' @param add_label A logical
-#' @param width A numeric
-#' @param height A numeric
+#' @importFrom dplyr tibble
+#' 
+#' @param outcome_variable a character string.
+#' @param parameters the parms.tried.df data frame.
+#' @param outcomes the outcomes.summary.df data frame.
+#' @param method a character string. Options include: kendall-partial-correlation-slow, pearson-partial-correlation-fast, pearson-partial-correlation-slow, spearman-partial-correlation-slow, t-test. By default, the option is kendall-partial-correlation-slow.
+#' @param bin_width a numeric value.
+#' @param element_text_size a numeric value.
+#' @param order_by_absolute_value a logical value.
+#' @param add_label a logical value.
+#' @param width an integer.
+#' @param height an integer.
+#'
+#' @examples
+#' # Load demo data
+#' data("sweepr.demo")
+#' 
+#' # Define results
+#' parameters.swept <- sweepr.demo$parameters
+#' outcomes.summary.df <- sweepr.demo$results
+#'
+#' get.tornado.plot(
+#'   outcome_variable = "maxInc", 
+#'   parameters = parameters.swept, 
+#'   outcomes = outcomes.summary.df, 
+#'   height = 500, 
+#'   width = 756
+#' )
+#'
+#' @return none.
 
-get_tornado_plot <- function(outcome_variable, parameters = parms.tried.df, outcomes = outcomes.summary.df, method = "kendall-partial-correlation-slow", bin_width = 0.5, element_text_size = 12, order_by_absolute_value = FALSE, add_label = FALSE, width = NULL, height = NULL) {
+get.tornado.plot <- function(outcome_variable, parameters = parms.tried.df, outcomes = outcomes.summary.df, method = "kendall-partial-correlation-slow", bin_width = 0.5, element_text_size = 12, order_by_absolute_value = FALSE, add_label = FALSE, width = NULL, height = NULL) {
   if(is.null(outcome_variable) | is.null(parameters) | is.null(outcomes) | is.null(method)) {
     return()
   } else {
-    what.matters = Assess.covariate.importance(outcomes,names(parameters), outcome_variable, method)
+    what.matters = assess.parameter.importance(outcomes,names(parameters), outcome_variable, method)
     correlations <- tibble(variable = names(what.matters), coefficient = what.matters)
     correlations$variable <- factor(correlations$variable)
     if(isTRUE(order_by_absolute_value)) {
@@ -95,19 +135,39 @@ get_tornado_plot <- function(outcome_variable, parameters = parms.tried.df, outc
 }
 
 #' Render a tornado table
+#' 
 #' @export
+#' 
+#' @importFrom dplyr tibble
 #' @importFrom DT datatable
 #' @importFrom htmlwidgets JS
-#' @param outcome_variable A string
-#' @param parameters The parms.tried.df data frame
-#' @param outcomes The outcomes.summary.df data frame
-#' @param method A string
+#' 
+#' @param outcome_variable a character string.
+#' @param parameters the parms.tried.df data frame.
+#' @param outcomes the outcomes.summary.df data frame.
+#' @param method a character string. Options include: kendall-partial-correlation-slow, pearson-partial-correlation-fast, pearson-partial-correlation-slow, spearman-partial-correlation-slow, t-test. By default, the option is kendall-partial-correlation-slow.
+#' 
+#' @examples
+#' # Load demo data
+#' data("sweepr.demo")
+#' 
+#' # Define results
+#' parameters.swept <- sweepr.demo$parameters
+#' outcomes.summary.df <- sweepr.demo$results
+#'
+#' get.tornado.table(
+#'   outcome_variable = "maxInc", 
+#'   parameters = parameters.swept, 
+#'   outcomes = outcomes.summary.df
+#' )
+#'
+#' @return none.
 
-get_tornado_table <- function(outcome_variable, parameters = parms.tried.df, outcomes = outcomes.summary.df, method = "kendall-partial-correlation-slow") {
+get.tornado.table <- function(outcome_variable, parameters = parms.tried.df, outcomes = outcomes.summary.df, method = "kendall-partial-correlation-slow") {
 	if(is.null(outcome_variable) | is.null(parameters) | is.null(outcomes) | is.null(method)) {
 		return()
 	  } else {
-		what.matters = Assess.covariate.importance(outcomes,names(parameters), outcome_variable, method)
+		what.matters = assess.parameter.importance(outcomes,names(parameters), outcome_variable, method)
 		correlations <- tibble(variable = names(what.matters), coefficient = what.matters)
 		correlations$variable <- factor(correlations$variable)
 		tab <- tibble(Variable = correlations$variable, Method = rep(method, nrow(correlations)), Coefficient = round(correlations$coefficient, 3))
