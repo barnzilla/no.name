@@ -9,11 +9,11 @@ assess.parameter.importance(don, X, Y, method)
 \arguments{
 \item{don}{a data frame.}
 
-\item{X}{a numerical vector.}
+\item{X}{a numeric vector.}
 
-\item{Y}{a numerical vector.}
+\item{Y}{a numeric vector.}
 
-\item{method}{A string}
+\item{method}{a character element ("kendall-partial-correlation-slow", "pearson-partial-correlation-fast", #' "pearson-partial-correlation-slow", "spearman-partial-correlation-slow", "negative-log-p-value", "t-test").}
 }
 \value{
 a vector.

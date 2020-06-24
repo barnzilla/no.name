@@ -8,30 +8,30 @@
 #'
 #' @param x a numeric vector.
 #' @param y a numeric vector.
-#' @param x_label_text a character string.
-#' @param y_label_text a character string.
-#' @param geom_point_size a numeric value.
-#' @param element_text_size a numeric value.
-#' @param width an integer.
-#' @param height an integer.
+#' @param x_label_text a character element (by default, the vector name).
+#' @param y_label_text a character element (by default, the vector name).
+#' @param geom_point_size a numeric element (by default, 2).
+#' @param element_text_size a numeric value (by default, 12).
+#' @param height an integer element representing the height of the plot in pixels.
+#' @param width an integer element representing the width of the plot in pixels.
 #'
 #' @examples
 #' # Load demo data
 #' data("sweepr.demo")
-#' 
+#'
 #' # Define results
 #' outcomes.summary.df <- sweepr.demo$results
 #'
 #' get.scatter.plot(
-#'   x = outcomes.summary.df$delta.overwrite, 
-#'   y = outcomes.summary.df$maxInc, 
-#'   height = 500, 
+#'   x = outcomes.summary.df$delta.overwrite,
+#'   y = outcomes.summary.df$maxInc,
+#'   height = 500,
 #'   width = 756
 #' )
 #'
 #' @return none.
 
-get.scatter.plot <- function(x, y, x_label_text = deparse(substitute(x)), y_label_text = deparse(substitute(y)), geom_point_size = 2, element_text_size = 12, width = NULL, height = NULL) {
+get.scatter.plot <- function(x, y, x_label_text = deparse(substitute(x)), y_label_text = deparse(substitute(y)), geom_point_size = 2, element_text_size = 12, height = NULL, width = NULL) {
   if(is.null(x) | is.null(y)) {
     return()
   } else {
@@ -59,44 +59,44 @@ get.scatter.plot <- function(x, y, x_label_text = deparse(substitute(x)), y_labe
 }
 
 #' Render a tornado plot
-#' 
+#'
 #' @export
-#' 
+#'
 #' @importFrom forcats fct_reorder
 #' @importFrom ggplot2 aes coord_flip element_blank element_text geom_bar geom_point geom_text ggplot scale_x_continuous scale_y_continuous theme theme_minimal xlab ylab
 #' @importFrom plotly ggplotly
 #' @importFrom dplyr tibble
-#' 
-#' @param outcome_variable a character string.
+#'
+#' @param outcome_variable a character element.
 #' @param parameters the parms.tried.df data frame.
 #' @param outcomes the outcomes.summary.df data frame.
-#' @param method a character string. Options include: kendall-partial-correlation-slow, pearson-partial-correlation-fast, pearson-partial-correlation-slow, spearman-partial-correlation-slow, t-test. By default, the option is kendall-partial-correlation-slow.
-#' @param bin_width a numeric value.
-#' @param element_text_size a numeric value.
-#' @param order_by_absolute_value a logical value.
-#' @param add_label a logical value.
-#' @param width an integer.
-#' @param height an integer.
+#' @param method a character element ("kendall-partial-correlation-slow", "pearson-partial-correlation-fast", #' "pearson-partial-correlation-slow", "spearman-partial-correlation-slow", "negative-log-p-value", "t-test").
+#' @param bin_width a numeric element representing the width of the bars (by default, 0.5).
+#' @param element_text_size a numeric element (by default, 12).
+#' @param order_by_absolute_value a logical element representing whether to order the bars by absolute value (by default, FALSE).
+#' @param add_label a logical element representing whether to add labels to the bars (by default, FALSE).
+#' @param height an integer element representing the height of the plot in pixels.
+#' @param width an integer element representing the width of the plot in pixels.
 #'
 #' @examples
 #' # Load demo data
 #' data("sweepr.demo")
-#' 
+#'
 #' # Define results
 #' parameters.swept <- sweepr.demo$parameters
 #' outcomes.summary.df <- sweepr.demo$results
 #'
 #' get.tornado.plot(
-#'   outcome_variable = "maxInc", 
-#'   parameters = parameters.swept, 
-#'   outcomes = outcomes.summary.df, 
-#'   height = 500, 
+#'   outcome_variable = "maxInc",
+#'   parameters = parameters.swept,
+#'   outcomes = outcomes.summary.df,
+#'   height = 500,
 #'   width = 756
 #' )
 #'
 #' @return none.
 
-get.tornado.plot <- function(outcome_variable, parameters = parms.tried.df, outcomes = outcomes.summary.df, method = "kendall-partial-correlation-slow", bin_width = 0.5, element_text_size = 12, order_by_absolute_value = FALSE, add_label = FALSE, width = NULL, height = NULL) {
+get.tornado.plot <- function(outcome_variable, parameters = parms.tried.df, outcomes = outcomes.summary.df, method = "kendall-partial-correlation-slow", bin_width = 0.5, element_text_size = 12, order_by_absolute_value = FALSE, add_label = FALSE, height = NULL, width = NULL) {
   if(is.null(outcome_variable) | is.null(parameters) | is.null(outcomes) | is.null(method)) {
     return()
   } else {
@@ -135,52 +135,52 @@ get.tornado.plot <- function(outcome_variable, parameters = parms.tried.df, outc
 }
 
 #' Render a tornado table
-#' 
+#'
 #' @export
-#' 
+#'
 #' @importFrom dplyr tibble
 #' @importFrom DT datatable
 #' @importFrom htmlwidgets JS
-#' 
-#' @param outcome_variable a character string.
+#'
+#' @param outcome.variable a character element.
 #' @param parameters the parms.tried.df data frame.
 #' @param outcomes the outcomes.summary.df data frame.
-#' @param method a character string. Options include: kendall-partial-correlation-slow, pearson-partial-correlation-fast, pearson-partial-correlation-slow, spearman-partial-correlation-slow, t-test. By default, the option is kendall-partial-correlation-slow.
-#' 
+#' @param method a character element ("kendall-partial-correlation-slow", "pearson-partial-correlation-fast", #' "pearson-partial-correlation-slow", "spearman-partial-correlation-slow", "negative-log-p-value", "t-test").
+#'
 #' @examples
 #' # Load demo data
 #' data("sweepr.demo")
-#' 
+#'
 #' # Define results
 #' parameters.swept <- sweepr.demo$parameters
 #' outcomes.summary.df <- sweepr.demo$results
 #'
 #' get.tornado.table(
-#'   outcome_variable = "maxInc", 
-#'   parameters = parameters.swept, 
+#'   outcome.variable = "maxInc",
+#'   parameters = parameters.swept,
 #'   outcomes = outcomes.summary.df
 #' )
 #'
 #' @return none.
 
-get.tornado.table <- function(outcome_variable, parameters = parms.tried.df, outcomes = outcomes.summary.df, method = "kendall-partial-correlation-slow") {
-	if(is.null(outcome_variable) | is.null(parameters) | is.null(outcomes) | is.null(method)) {
+get.tornado.table <- function(outcome.variable, parameters = parms.tried.df, outcomes = outcomes.summary.df, method = "kendall-partial-correlation-slow") {
+	if(is.null(outcome.variable) | is.null(parameters) | is.null(outcomes) | is.null(method)) {
 		return()
 	  } else {
-		what.matters = assess.parameter.importance(outcomes,names(parameters), outcome_variable, method)
+		what.matters = assess.parameter.importance(outcomes, names(parameters), outcome.variable, method)
 		correlations <- tibble(variable = names(what.matters), coefficient = what.matters)
 		correlations$variable <- factor(correlations$variable)
 		tab <- tibble(Variable = correlations$variable, Method = rep(method, nrow(correlations)), Coefficient = round(correlations$coefficient, 3))
 		datatable(
 			tab,
-			extensions = c("Buttons", "Scroller"), 
+			extensions = c("Buttons", "Scroller"),
 			rownames = FALSE,
 			options = list(
 			  columnDefs = list(list(visible = FALSE, targets = c())),
-			  pageLength = 50, 
-			  dom = "Bfrtip", 
-			  buttons = c("colvis", "copy", "csv", "excel", "pdf"), 
-			  deferRender = TRUE, 
+			  pageLength = 50,
+			  dom = "Bfrtip",
+			  buttons = c("colvis", "copy", "csv", "excel", "pdf"),
+			  deferRender = TRUE,
 			  searchDelay = 500,
 			  initComplete = JS(
 				"function(settings, json) {",

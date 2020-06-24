@@ -5,13 +5,13 @@
 \title{Perform a parameter sweep}
 \usage{
 try.various.parms.values(
-  SEIR.object,
+  seir.object,
   parm.cloud.grid.specs,
   only.show.parms.to.try = FALSE
 )
 }
 \arguments{
-\item{SEIR.object}{a SEIR model object.}
+\item{seir.object}{a box/compartment model object.}
 
 \item{parm.cloud.grid.specs}{a data frame of parameter sweep specifications.}
 
@@ -22,19 +22,4 @@ a list of parameter sweep inputs and results.
 }
 \description{
 Perform a parameter sweep
-}
-\examples{
-# Load demo data
-data("sweepr.demo")
-
-# Define results
-outcomes.summary.df <- sweepr.demo$results
-
-get.scatter.plot(
-  x = outcomes.summary.df$delta.overwrite, 
-  y = outcomes.summary.df$maxInc, 
-  height = 500, 
-  width = 756
-)
-
 }

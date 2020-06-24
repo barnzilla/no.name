@@ -5,20 +5,20 @@
 \title{Render a tornado table}
 \usage{
 get.tornado.table(
-  outcome_variable,
+  outcome.variable,
   parameters = parms.tried.df,
   outcomes = outcomes.summary.df,
   method = "kendall-partial-correlation-slow"
 )
 }
 \arguments{
-\item{outcome_variable}{a character string.}
+\item{outcome.variable}{a character element.}
 
 \item{parameters}{the parms.tried.df data frame.}
 
 \item{outcomes}{the outcomes.summary.df data frame.}
 
-\item{method}{a character string. Options include: kendall-partial-correlation-slow, pearson-partial-correlation-fast, pearson-partial-correlation-slow, spearman-partial-correlation-slow, t-test. By default, the option is kendall-partial-correlation-slow.}
+\item{method}{a character element ("kendall-partial-correlation-slow", "pearson-partial-correlation-fast", #' "pearson-partial-correlation-slow", "spearman-partial-correlation-slow", "negative-log-p-value", "t-test").}
 }
 \value{
 none.
@@ -35,8 +35,8 @@ parameters.swept <- sweepr.demo$parameters
 outcomes.summary.df <- sweepr.demo$results
 
 get.tornado.table(
-  outcome_variable = "maxInc", 
-  parameters = parameters.swept, 
+  outcome.variable = "maxInc",
+  parameters = parameters.swept,
   outcomes = outcomes.summary.df
 )
 

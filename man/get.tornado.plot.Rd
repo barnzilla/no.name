@@ -13,30 +13,30 @@ get.tornado.plot(
   element_text_size = 12,
   order_by_absolute_value = FALSE,
   add_label = FALSE,
-  width = NULL,
-  height = NULL
+  height = NULL,
+  width = NULL
 )
 }
 \arguments{
-\item{outcome_variable}{a character string.}
+\item{outcome_variable}{a character element.}
 
 \item{parameters}{the parms.tried.df data frame.}
 
 \item{outcomes}{the outcomes.summary.df data frame.}
 
-\item{method}{a character string. Options include: kendall-partial-correlation-slow, pearson-partial-correlation-fast, pearson-partial-correlation-slow, spearman-partial-correlation-slow, t-test. By default, the option is kendall-partial-correlation-slow.}
+\item{method}{a character element ("kendall-partial-correlation-slow", "pearson-partial-correlation-fast", #' "pearson-partial-correlation-slow", "spearman-partial-correlation-slow", "negative-log-p-value", "t-test").}
 
-\item{bin_width}{a numeric value.}
+\item{bin_width}{a numeric element representing the width of the bars (by default, 0.5).}
 
-\item{element_text_size}{a numeric value.}
+\item{element_text_size}{a numeric element (by default, 12).}
 
-\item{order_by_absolute_value}{a logical value.}
+\item{order_by_absolute_value}{a logical element representing whether to order the bars by absolute value (by default, FALSE).}
 
-\item{add_label}{a logical value.}
+\item{add_label}{a logical element representing whether to add labels to the bars (by default, FALSE).}
 
-\item{width}{an integer.}
+\item{height}{an integer element representing the height of the plot in pixels.}
 
-\item{height}{an integer.}
+\item{width}{an integer element representing the width of the plot in pixels.}
 }
 \value{
 none.
@@ -53,10 +53,10 @@ parameters.swept <- sweepr.demo$parameters
 outcomes.summary.df <- sweepr.demo$results
 
 get.tornado.plot(
-  outcome_variable = "maxInc", 
-  parameters = parameters.swept, 
-  outcomes = outcomes.summary.df, 
-  height = 500, 
+  outcome_variable = "maxInc",
+  parameters = parameters.swept,
+  outcomes = outcomes.summary.df,
+  height = 500,
   width = 756
 )
 

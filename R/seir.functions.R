@@ -1,4 +1,4 @@
-#' Main SEIR model functions
+#' Main box/compartment model functions
 #'
 #' @export
 #'
@@ -9,17 +9,17 @@
 #' @importFrom readxl read_excel
 #' @importFrom tidyr pivot_longer
 #'
-#' @param file.name a string.
-#' @param sheets.names a string vector.
-#' @param just.get.functions a logical.
+#' @param file.name a character element.
+#' @param sheets.names a character vector.
+#' @param just.get.functions a logical element.
 #' @param functions.kit a list containing one or more of the following: $differential.eqns.func, $post.processing.func, $post.processing.companion.kit, $CTMC.eqns.func, $CTMC.eqns.func.companion. This parameter is NULL by default.
-#' @param also.get.flows a string.
-#' @param agegrp.glue a string.
+#' @param also.get.flows a character element.
+#' @param agegrp.glue a character element.
 #' @param CTMC.random.seeds an integer vector.
 #'
 #' @return a SEIR object.
   
-SEIR.n.age.classes = function(file.name, sheets.names, just.get.functions = FALSE, functions.kit = NULL, also.get.flows = NULL, agegrp.glue = "", CTMC.random.seeds = NULL)
+seir.n.age.classes = function(file.name, sheets.names, just.get.functions = FALSE, functions.kit = NULL, also.get.flows = NULL, agegrp.glue = "", CTMC.random.seeds = NULL)
 {
   # functions.kit may be NULL or a list containing SOME of the following
   #   $differential.eqns.func 
@@ -374,7 +374,7 @@ SEIR.n.age.classes = function(file.name, sheets.names, just.get.functions = FALS
   #==========================================================================
   # The SEIR model with N age classes
   #
-  SEIR.n.Age.Classes.within.loop <- function( time=NULL, tmin.vect=NULL, ageless.parms = NULL, age.parms = NULL, age.age.parms = NULL,list.inits = NULL, not.parms=  c("tmin", "tmax", "agegrp", "cagegrp", "ragegrp"))
+  seir.n.age.classes.within.loop <- function( time=NULL, tmin.vect=NULL, ageless.parms = NULL, age.parms = NULL, age.age.parms = NULL,list.inits = NULL, not.parms=  c("tmin", "tmax", "agegrp", "cagegrp", "ragegrp"))
   {
     if (is.null(ageless.parms))
       stop("undefined 'ageless.parms'")
@@ -443,7 +443,7 @@ SEIR.n.age.classes = function(file.name, sheets.names, just.get.functions = FALS
                      names.inits = names(list.inits))
     
     return(output)
-  }  # END  of function SEIR.n.Age.Classes.within.loop
+  }  # END  of function seir.n.age.classes.within.loop
   
   lean.ssa.adaptivetau <- function(sim_number, init.conditions, params,racines,etiquettes) 
   {
@@ -471,7 +471,7 @@ SEIR.n.age.classes = function(file.name, sheets.names, just.get.functions = FALS
   #        To run the example
   ################################################################
   
-  # Should consider dropping the "for(segment in ...)" loop and call SEIR.n.Age.Classes.within.loop only once
+  # Should consider dropping the "for(segment in ...)" loop and call seir.n.age.classes.within.loop only once
   # This should be feasible as this is very much what is done with lean.ssa.adaptivetau
   
   excluded_names <- c("tmin", "tmax","agegrp","cagegrp","ragegrp")
@@ -502,7 +502,7 @@ SEIR.n.age.classes = function(file.name, sheets.names, just.get.functions = FALS
  
     
     previous.tmax <- tmax
-    out <- SEIR.n.Age.Classes.within.loop( time=tt,
+    out <- seir.n.age.classes.within.loop( time=tt,
                                            tmin.vect = CTMC.parms.info$tmin.vect,
                                            ageless.parms = this.parameter.by.nothing,
                                            age.parms     = this.parameter.by.age,
@@ -587,20 +587,20 @@ SEIR.n.age.classes = function(file.name, sheets.names, just.get.functions = FALS
   resultat$input.info.verbatim = input.info.verbatim
   
   eval.post.processing.func(resultat)
-} #end of SEIR.n.Age.Classes function
+} #end of seir.n.age.classes function
 
-#' Get SEIR model flows
+#' Get box/compartment model flows
 #'
 #' @noRd
 #'
 #' @keywords Internal
 #'
-#' @param model_flows A string
-#' @param init.cond A string
-#' @param init.cond.numeric.vars A vector string
-#' @param which.flow A string
-#' @param NewFrom A string
-#' @param NewTo A string
+#' @param model_flows a character element.
+#' @param init.cond a character element.
+#' @param init.cond.numeric.vars a character vector.
+#' @param which.flow a character element.
+#' @param NewFrom a character element.
+#' @param NewTo a character element.
 #'
 #' @return a list of model flows.
 
@@ -655,14 +655,14 @@ get.silly.model.chunk = function(model_flows, init.cond, init.cond.numeric.vars,
 }
 
 
-#' Save SEIR model as an Excel workbook
+#' Save box/compartment model as an Excel workbook
 #'
 #' @export
 #'
 #' @importFrom openxlsx write.xlsx
 #'
 #' @param input.info.list a list.
-#' @param file_name a character string.
+#' @param file_name a character element.
 #' @param map.names a list of workbook sheet names.
 #'
 #' @return none.
@@ -683,27 +683,13 @@ save.model.in.workbook = function(input.info.list,file_name,map.names)
 #' @importFrom stats qunif runif
 #' @importFrom triangle qtriangle
 #'
-#' @param SEIR.object a SEIR model object.
+#' @param seir.object a box/compartment model object.
 #' @param parm.cloud.grid.specs a data frame of parameter sweep specifications.
 #' @param only.show.parms.to.try a logical value. By default, FALSE.
 #'
-#' @examples
-#' # Load demo data
-#' data("sweepr.demo")
-#' 
-#' # Define results
-#' outcomes.summary.df <- sweepr.demo$results
-#'
-#' get.scatter.plot(
-#'   x = outcomes.summary.df$delta.overwrite, 
-#'   y = outcomes.summary.df$maxInc, 
-#'   height = 500, 
-#'   width = 756
-#' )
-#'
 #' @return a list of parameter sweep inputs and results.
 
-try.various.parms.values = function(SEIR.object, parm.cloud.grid.specs, only.show.parms.to.try = FALSE)
+try.various.parms.values = function(seir.object, parm.cloud.grid.specs, only.show.parms.to.try = FALSE)
 { 
   #parm.cloud.grid.specs is a list that should contain the following 7 things
   # *  $hypercube.lower.bounds , $hypercube.upper.bounds, $hypercube.apex.mode
@@ -775,23 +761,23 @@ try.various.parms.values = function(SEIR.object, parm.cloud.grid.specs, only.sho
     return (list(parms.to.try=parms.to.try.verbose))
   
 
-  # Recover some info from baseline/template (i.e. SEIR.object)
+  # Recover some info from baseline/template (i.e. seir.object)
   
-  file_name_for_sweep   = SEIR.object$input.info.verbatim$file.name     
-  sheet_names_for_sweep = SEIR.object$input.info           # Can use either of those two lines ... in theory (not tested)
-  sheet_names_for_sweep = SEIR.object$input.info.verbatim  # Can use either of those two lines ... in theory (not tested)
+  file_name_for_sweep   = seir.object$input.info.verbatim$file.name     
+  sheet_names_for_sweep = seir.object$input.info           # Can use either of those two lines ... in theory (not tested)
+  sheet_names_for_sweep = seir.object$input.info.verbatim  # Can use either of those two lines ... in theory (not tested)
 
-  baseline.parms.notime.0d = SEIR.object$input.info$parms.notime.0d  # data frame of 0d parameters (i.e. not by age) 
-  baseline.parms.0d = SEIR.object$input.info$parms.0d  # data frame of 0d parameters (i.e. not by age) 
-  baseline.parms.1d = SEIR.object$input.info$parms.1d  # data frame of 1d parameters (i.e. by age)
-  baseline.parms.2d = SEIR.object$input.info$parms.2d  # data frame of 2d parameters (i.e. by age and age)
+  baseline.parms.notime.0d = seir.object$input.info$parms.notime.0d  # data frame of 0d parameters (i.e. not by age) 
+  baseline.parms.0d = seir.object$input.info$parms.0d  # data frame of 0d parameters (i.e. not by age) 
+  baseline.parms.1d = seir.object$input.info$parms.1d  # data frame of 1d parameters (i.e. by age)
+  baseline.parms.2d = seir.object$input.info$parms.2d  # data frame of 2d parameters (i.e. by age and age)
   
-  functions.kit     = SEIR.object$functions
- # post.process.kit  = SEIR.object$functions$post.processing.companion.kit
-  agegrp.glue       = SEIR.object$input.info.verbatim$agegrp.glue
-  CTMC.racines.alea = SEIR.object$input.info.verbatim$CTMC.random.seeds
+  functions.kit     = seir.object$functions
+ # post.process.kit  = seir.object$functions$post.processing.companion.kit
+  agegrp.glue       = seir.object$input.info.verbatim$agegrp.glue
+  CTMC.racines.alea = seir.object$input.info.verbatim$CTMC.random.seeds
   
-  flows.of.interest = gsub("solution.","",intersect(names(SEIR.object),c("solution.inflows","solution.outflows")))
+  flows.of.interest = gsub("solution.","",intersect(names(seir.object),c("solution.inflows","solution.outflows")))
 
   list.sweep = list() #        store results in list  ... 
   df.sweep = c()      # ... or store results in data.frame
@@ -831,7 +817,7 @@ try.various.parms.values = function(SEIR.object, parm.cloud.grid.specs, only.sho
     sheet_names_for_sweep$parms.1d = parms.1d # altered data.frame goes in sheet_names_for_sweep
     sheet_names_for_sweep$parms.2d = parms.2d # altered data.frame goes in sheet_names_for_sweep
     
-    this.result = SEIR.n.age.classes(file_name_for_sweep,sheet_names_for_sweep,also.get.flows=flows.of.interest,functions.kit = functions.kit, agegrp.glue=agegrp.glue, CTMC.random.seeds=CTMC.racines.alea) 
+    this.result = seir.n.age.classes(file_name_for_sweep,sheet_names_for_sweep,also.get.flows=flows.of.interest,functions.kit = functions.kit, agegrp.glue=agegrp.glue, CTMC.random.seeds=CTMC.racines.alea) 
     
     # Add on univariate stuff like maxI or maxI.time to outcomes.summary.df
     summary.template = data.frame(etiquette = this.label)
@@ -873,13 +859,13 @@ try.various.parms.values = function(SEIR.object, parm.cloud.grid.specs, only.sho
 #' @importFrom stats cor lm
 #'
 #' @param don a data frame.
-#' @param X a numerical vector.
-#' @param Y a numerical vector.
-#' @param method A string
+#' @param X a numeric vector.
+#' @param Y a numeric vector.
+#' @param method a character element ("kendall-partial-correlation-slow", "pearson-partial-correlation-fast", #' "pearson-partial-correlation-slow", "spearman-partial-correlation-slow", "negative-log-p-value", "t-test").
 #'
 #' @return a vector.
   
-assess.parameter.importance = function (don,X,Y,method)
+assess.parameter.importance = function (don, X, Y, method)
 {
   #  if(method == "ANOVA SS type ???")
   #  if(method == "Stepwise")  
@@ -917,15 +903,15 @@ assess.parameter.importance = function (don,X,Y,method)
   result
 }
 
-#' Compare results from SEIR models
+#' Compare results from box/compartment models
 #'
 #' @export
 #'
-#' @param solution1 a SEIR object.
-#' @param solution2 a SEIR object.
-#' @param age.suffix2 a character string.
-#' @param ignore.vars a logical.
-#' @param time.scope a numerical vector.
+#' @param solution1 a box/compartment model object.
+#' @param solution2 a box/compartment model object.
+#' @param age.suffix2 a character element.
+#' @param ignore.vars a logical element.
+#' @param time.scope a numeric vector.
 #' @param tolerance a list with absolute and relative variables.
 #'
 #' @return a vector.

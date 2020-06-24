@@ -1,6 +1,6 @@
 Package: sweepr
-Title: Run Parameter Sweeps on SEIR Models
-Version: 0.12.0
+Title: Fit Box/Compartment Models Via Excel
+Version: 12.01
 Authors@R: 
     c(person(given = "Claude",
              family = "Nadeau",
@@ -23,8 +23,13 @@ Authors@R:
              family = "Garner",
              role = "aut",
              email = "rochelle.garner.statcan@gccollaboration.ca"))
-Description: Runs SEIR model and performs parameter sweeps on
-    SEIR model output.
+Description: This package enables users to fit
+    box/compartment models via an Excel workbook. ODE (ordinary
+    differential equation) or CTMC (continuous-time Markov chain) models
+    can be fitted. ODE models can be fitted for multiple age groups. This
+    package also provides tools for users to perform sensitivity
+    analsyes/parameter sweeps on their models and to visualize model
+    results.
 License: CC BY 4.0
 Depends: 
     R (>= 2.10)

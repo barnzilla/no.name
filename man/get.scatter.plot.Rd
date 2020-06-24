@@ -11,8 +11,8 @@ get.scatter.plot(
   y_label_text = deparse(substitute(y)),
   geom_point_size = 2,
   element_text_size = 12,
-  width = NULL,
-  height = NULL
+  height = NULL,
+  width = NULL
 )
 }
 \arguments{
@@ -20,17 +20,17 @@ get.scatter.plot(
 
 \item{y}{a numeric vector.}
 
-\item{x_label_text}{a character string.}
+\item{x_label_text}{a character element (by default, the vector name).}
 
-\item{y_label_text}{a character string.}
+\item{y_label_text}{a character element (by default, the vector name).}
 
-\item{geom_point_size}{a numeric value.}
+\item{geom_point_size}{a numeric element (by default, 2).}
 
-\item{element_text_size}{a numeric value.}
+\item{element_text_size}{a numeric value (by default, 12).}
 
-\item{width}{an integer.}
+\item{height}{an integer element representing the height of the plot in pixels.}
 
-\item{height}{an integer.}
+\item{width}{an integer element representing the width of the plot in pixels.}
 }
 \value{
 none.
@@ -46,9 +46,9 @@ data("sweepr.demo")
 outcomes.summary.df <- sweepr.demo$results
 
 get.scatter.plot(
-  x = outcomes.summary.df$delta.overwrite, 
-  y = outcomes.summary.df$maxInc, 
-  height = 500, 
+  x = outcomes.summary.df$delta.overwrite,
+  y = outcomes.summary.df$maxInc,
+  height = 500,
   width = 756
 )
 

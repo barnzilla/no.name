@@ -2,7 +2,7 @@
 % Please edit documentation in R/seir.functions.R
 \name{compare.models}
 \alias{compare.models}
-\title{Compare results from SEIR models}
+\title{Compare results from box/compartment models}
 \usage{
 compare.models(
   solution1,
@@ -14,15 +14,15 @@ compare.models(
 )
 }
 \arguments{
-\item{solution1}{a SEIR object.}
+\item{solution1}{a box/compartment model object.}
 
-\item{solution2}{a SEIR object.}
+\item{solution2}{a box/compartment model object.}
 
-\item{age.suffix2}{a character string.}
+\item{age.suffix2}{a character element.}
 
-\item{ignore.vars}{a logical.}
+\item{ignore.vars}{a logical element.}
 
-\item{time.scope}{a numerical vector.}
+\item{time.scope}{a numeric vector.}
 
 \item{tolerance}{a list with absolute and relative variables.}
 }
@@ -30,5 +30,5 @@ compare.models(
 a vector.
 }
 \description{
-Compare results from SEIR models
+Compare results from box/compartment models
 }

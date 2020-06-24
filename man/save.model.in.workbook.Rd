@@ -2,14 +2,14 @@
 % Please edit documentation in R/seir.functions.R
 \name{save.model.in.workbook}
 \alias{save.model.in.workbook}
-\title{Save SEIR model as an Excel workbook}
+\title{Save box/compartment model as an Excel workbook}
 \usage{
 save.model.in.workbook(input.info.list, file_name, map.names)
 }
 \arguments{
 \item{input.info.list}{a list.}
 
-\item{file_name}{a character string.}
+\item{file_name}{a character element.}
 
 \item{map.names}{a list of workbook sheet names.}
 }
@@ -17,5 +17,5 @@ save.model.in.workbook(input.info.list, file_name, map.names)
 none.
 }
 \description{
-Save SEIR model as an Excel workbook
+Save box/compartment model as an Excel workbook
 }
