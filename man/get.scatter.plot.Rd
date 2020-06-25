@@ -40,10 +40,10 @@ Render a scatter plot
 }
 \examples{
 # Load demo data
-data("sweepr.demo")
+data("no.name.demo")
 
 # Define results
-outcomes.summary.df <- sweepr.demo$results
+outcomes.summary.df <- no.name.demo$results
 
 get.scatter.plot(
   x = outcomes.summary.df$delta.overwrite,

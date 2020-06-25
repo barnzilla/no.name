@@ -7,7 +7,7 @@
 get.path(x)
 }
 \arguments{
-\item{x}{a character element representing a file name ("demo.1.xls", "demo.3.xls", "demo.4.xls").}
+\item{x}{a character element representing a file name ("demo.model.1.xls", "demo.model.3.xls", "demo.model.4a.xls", "demo.model.4b.xls").}
 }
 \value{
 a character element representing the complete path to the file. If the file cannot be found, an empty element will be returned.
@@ -16,6 +16,6 @@ a character element representing the complete path to the file. If the file cann
 Return the complete path to a demo model Excel workbook
 }
 \examples{
-path.to.demo.model <- get.path("demo.1.xls")
+path.to.demo.model <- get.path("demo.model.1.xls")
 
 }

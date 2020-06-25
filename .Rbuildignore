@@ -1,6 +1,3 @@
-^.*\.Rproj$
+^no\.name\.Rproj$
 ^\.Rproj\.user$
-^sweepr\.Rproj$
 ^LICENSE\.md$
-^doc$
-^Meta$

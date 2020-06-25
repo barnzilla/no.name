@@ -17,10 +17,10 @@
 #'
 #' @examples
 #' # Load demo data
-#' data("sweepr.demo")
+#' data("no.name.demo")
 #'
 #' # Define results
-#' outcomes.summary.df <- sweepr.demo$results
+#' outcomes.summary.df <- no.name.demo$results
 #'
 #' get.scatter.plot(
 #'   x = outcomes.summary.df$delta.overwrite,
@@ -80,11 +80,11 @@ get.scatter.plot <- function(x, y, x_label_text = deparse(substitute(x)), y_labe
 #'
 #' @examples
 #' # Load demo data
-#' data("sweepr.demo")
+#' data("no.name.demo")
 #'
 #' # Define results
-#' parameters.swept <- sweepr.demo$parameters
-#' outcomes.summary.df <- sweepr.demo$results
+#' parameters.swept <- no.name.demo$parameters
+#' outcomes.summary.df <- no.name.demo$results
 #'
 #' get.tornado.plot(
 #'   outcome_variable = "maxInc",
@@ -149,11 +149,11 @@ get.tornado.plot <- function(outcome_variable, parameters = parms.tried.df, outc
 #'
 #' @examples
 #' # Load demo data
-#' data("sweepr.demo")
+#' data("no.name.demo")
 #'
 #' # Define results
-#' parameters.swept <- sweepr.demo$parameters
-#' outcomes.summary.df <- sweepr.demo$results
+#' parameters.swept <- no.name.demo$parameters
+#' outcomes.summary.df <- no.name.demo$results
 #'
 #' get.tornado.table(
 #'   outcome.variable = "maxInc",

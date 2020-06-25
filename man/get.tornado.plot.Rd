@@ -46,11 +46,11 @@ Render a tornado plot
 }
 \examples{
 # Load demo data
-data("sweepr.demo")
+data("no.name.demo")
 
 # Define results
-parameters.swept <- sweepr.demo$parameters
-outcomes.summary.df <- sweepr.demo$results
+parameters.swept <- no.name.demo$parameters
+outcomes.summary.df <- no.name.demo$results
 
 get.tornado.plot(
   outcome_variable = "maxInc",
