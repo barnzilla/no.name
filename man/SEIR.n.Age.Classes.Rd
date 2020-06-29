@@ -17,7 +17,7 @@ seir.n.age.classes(
 \arguments{
 \item{file.name}{a character element.}
 
-\item{sheets.names}{a character vector.}
+\item{sheets.names}{a list.}
 
 \item{just.get.functions}{a logical element (by default, FALSE).}
 
@@ -37,8 +37,10 @@ Main box/compartment model functions
 }
 \examples{
 
-# Get full path to demo model (in Excel workbook) that comes with the no.name package
+# Get full path to demo model (in Excel workbook)
+# that comes with the no.name package
 model.1.workbook <- get.path("demo.model.1.xls")
+
 # Define workbook sheet names
 sheet.names <- list(
   parms.notime.0d = "Parameters any time any age",

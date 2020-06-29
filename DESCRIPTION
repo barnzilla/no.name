@@ -1,6 +1,6 @@
 Package: no.name
-Title: Fit Box/Compartment Models Via Excel
-Version: 12.02
+Title: Build Box/Compartment Models Via Excel
+Version: 12.03
 Authors@R: 
     c(person(given = "Claude",
              family = "Nadeau",
@@ -26,7 +26,7 @@ Authors@R:
 Description: This R package enables users to build
     box/compartment models via an Excel workbook. ODE (ordinary
     differential equation) or CTMC (continuous-time Markov chain) models
-    can be built. ODE models can be built for multiple age groups. This
+    can be built Multiple age group models can be built using ODE. This
     package also provides tools for users to perform sensitivity
     analsyes/parameter sweeps on their models and to visualize model
     results.

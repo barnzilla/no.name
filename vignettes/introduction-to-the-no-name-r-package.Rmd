@@ -14,10 +14,10 @@ vignette: >
 
 <style>
   img { width: 100%; height: auto; }
-  p { margin-top: 1em; }
+  p { margin-top: 1rem;line-height: 1.5rem; }
 </style>
 
-<img src="https://www.statcan.gc.ca/wet-boew4b/assets/sig-blk-en.svg" style = "max-width: 300px; height: auto; margin-top: 48px; margin-bottom: 24px; border: 0;" alt="logo">
+<img src="img/sig-blk-en.svg" style = "max-width: 300px; height: auto; margin-top: 48px; margin-bottom: 24px; border: 0;" alt="logo">
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
@@ -32,12 +32,12 @@ klippy::klippy(position = c("top", "right"))
 
 ## Introduction
 
-This R package enables users to build box/compartment models via an Excel workbook. ODE (ordinary differential equation) or CTMC (continuous-time Markov chain) models can be built. ODE models can be built for multiple age groups. This package also provides tools for users to perform sensitivity analsyes/parameter sweeps on their models and to visualize model results.
+This R package enables users to build box/compartment models via an Excel workbook. ODE (ordinary differential equation) or CTMC (continuous-time Markov chain) models can be built Multiple age group models can be built using ODE. This package also provides tools for users to perform sensitivity analsyes/parameter sweeps on their models and to visualize model results.
 
 ## Installation
 ### GitHub
 
-The most recent version of `no.name` is available from the following GitHub repository: <a href="https://github.com/barnzilla/no.name" target="_blank">www.github.com/barnzilla/no.name</a>. The `devtools` R package allows you to download/install `no.name` directly from this repository.
+The most recent version of `no.name` is available on GitHub: <a href="https://github.com/barnzilla/no.name" target="_blank">www.github.com/barnzilla/no.name</a>. The `devtools` package allows users to download and install `no.name` directly from GitHub.
 
 ```{r warning = FALSE, message = FALSE, eval = FALSE}
 devtools::install_github("barnzilla/no.name", upgrade = "never")
@@ -46,7 +46,7 @@ library(no.name)
 
 ### Source package
 
-Users can also download and install the source package using the `install.packages` function from the `utils` package, which is preinstalled in R.
+Users can also download and install the source package using the `install.packages` function from the `utils` package, which comes pre-installed with R.
 
 ```{r warning = FALSE, message = FALSE, eval = FALSE}
 utils::install.packages(
@@ -61,15 +61,78 @@ library(no.name)
 library(no.name)
 ```
 
-## Demo 1
+<a name="excel-workbook"></a>
 
-Users can load a demo model that comes with the `no.name` package using the `get.path` function. This function maps the full path to where the demo model Excel workbook is located on the user's computer.
+## Demo 1: two-compartment model (left and right)
+### Introduction
+
+Users can load a demo Excel workbook that comes with `no.name` using the `get.path` function. This function maps the full path to the location of the Excel workbook on the user's computer. `no.name` can build a two-compartment model from the contents of this Excel workbook.
 
 ```{r}
 model.1.workbook <- get.path("demo.model.1.xls")
 ```
 
-A list containing sheet names and other parameters needs to be defined. For example, users can set the `model.flow` parameter to "Model Specs (not lazy v1)" and the `post.processing` parameter to "Post Processing Empty".
+### Model input sheets
+
+There are several sheets in <a href="#excel-workbook">this demo Excel workbook</a>. Here are screenshots of each sheet:
+
+**Parameters any time any age**
+
+<img src="img/demo.1.parameters.any.time.any.age.jpg" alt="Parameters any time any age">
+
+**Parameters any age**
+
+<img src="img/demo.1.parameters.any.age.jpg" alt="Parameters any age">
+
+**Parameters by age**
+
+<img src="img/demo.1.parameters.by.age.jpg" alt="Parameters by age">
+
+**Parameters by age x age**
+
+<img src="img/demo.1.parameters.by.age.by.age.jpg" alt="Parameters by age by age">
+
+**Initial conditions**
+
+<img src="img/demo.1.initial.conditions.jpg" alt="Initial conditions">
+
+**Model specs (not lazy v1)**
+
+<img src="img/demo.1.model.specs.not.lazy.v1.jpg" alt="Model specs (not lazy v1)">
+
+**Model specs (not lazy v2)**
+
+<img src="img/demo.1.model.specs.not.lazy.v2.jpg" alt="Model specs (not lazy v2)">
+
+**Model specs (not lazy v3)**
+
+<img src="img/demo.1.model.specs.not.lazy.v3.jpg" alt="Model specs (not lazy v3)">
+
+**Model specs (lazy)**
+
+<img src="img/demo.1.model.specs.lazy.jpg" alt="Model specs (lazy)">
+
+**Intermediate calculations**
+
+<img src="img/demo.1.intermediate.calculations.jpg" alt="Intermediate calculations">
+
+**Post processing empty**
+
+<img src="img/demo.1.post.processing.empty.jpg" alt="Intermediate calculations">
+
+**Post processing**
+
+<img src="img/demo.1.post.processing.jpg" alt="Intermediate calculations">
+
+### The seir.n.age.classes function
+
+Users can build a model based on the contents of <a href="#excel-workbook">this demo Excel workbook</a> by calling the `seir.n.age.classes` function. The first two arguments in the function, `file.name` and `sheets.names`, are required. `file.name` is the full path to <a href="#excel-workbook">the demo Excel workbook</a>, which was defined above using the `get.path` function:
+
+```{r}
+model.1.workbook <- get.path("demo.model.1.xls")
+```
+
+The `sheet.names` argument requires a list of arguments that correspond to sheet names in <a href="#excel-workbook">the demo Excel workbook</a>. For example:
 
 ```{r}
 sheet.names <- list(
@@ -84,87 +147,119 @@ sheet.names <- list(
 )
 ```
 
-The model can be built by calling the `seir.n.age.classes` function.
+Now the model can be built:
 
 ```{r}
-results.1 <- seir.n.age.classes(model.1.workbook, sheet.names)
+results.not.lazy.1 <- seir.n.age.classes(model.1.workbook, sheet.names)
 ```
 
-The `seir.n.age.classes` function returns an object containing the model results. You can inspect the model inputs by calling the `input.info` list within the `results.1` object.
+The `seir.n.age.classes` function returns an object containing the model results. You can also inspect the model inputs by calling the `input.info` list within the `results.not.lazy.1` object, which may be more convenient than flipping between sheets within <a href="#excel-workbook">the demo Excel workbook</a>:
 
 ```{r}
-results.1$input.info$model.flow[, c("From", "To", "lazy", "activation", "expression")]
-results.1$input.info$auxiliary.vars
-results.1$input.info$initial.conditions
-results.1$input.info$parms.notime.0d
-results.1$input.info$parms.0d
-results.1$input.info$parms.1d
-results.1$input.info$parms.2d
-results.1$input.info$post.processing
+results.not.lazy.1$input.info$model.flow[, c("From", "To", "lazy", "activation", "expression")]
+
+results.not.lazy.1$input.info$auxiliary.vars
+
+results.not.lazy.1$input.info$initial.conditions
+
+results.not.lazy.1$input.info$parms.notime.0d
+
+results.not.lazy.1$input.info$parms.0d
+
+results.not.lazy.1$input.info$parms.1d
+
+results.not.lazy.1$input.info$parms.2d
+
+results.not.lazy.1$input.info$post.processing
 ```
 
-Here are several ways to inspect the model results. 
+### Non-lazy and lazy styles
+
+There are four different style options available in <a href="#excel-workbook">the demo Excel workbook</a> that can be used when building a model: 
+
++ "Model Specs (not lazy v1)"
++ "Model Specs (not lazy v2)"
++ "Model Specs (not lazy v3)" 
++ "Model Specs (lazy)"
+
+Building models using one of the other three options simply requires changing the `model.flow` argument in the `sheet.names` list and then calling the `seir.n.age.classes` function again:
 
 ```{r}
-head(results.1$solution)
-get.scatter.plot(results.1$solution$time, results.1$solution$Left, height = 500, width = 756)
-results.1$sommaire
+# Lazy model
+sheet.names$model.flow <- "Model Specs (lazy)"
+results.lazy <- seir.n.age.classes(model.1.workbook, sheet.names)
+
+# Not lazy v2 model
+sheet.names$model.flow <- "Model Specs (not lazy v2)"
+results.not.lazy.2 <- seir.n.age.classes(model.1.workbook, sheet.names)
+
+# Not lazy v3 model
+sheet.names$model.flow <- "Model Specs (not lazy v3)"
+results.not.lazy.3 <- seir.n.age.classes(model.1.workbook, sheet.names)
 ```
 
-**Note:** the third option `results.1$sommaire` is empty because the `post.processing` parameter within the `sheet.names` list was set to "Post Processing Empty".
+### Post processing
 
-A new model can be easily built with a different model flow, and with post processing.
+Here are several ways to inspect the model results:
+
+```{r}
+head(results.not.lazy.1$solution)
+
+get.scatter.plot(
+  results.not.lazy.1$solution$time,
+  results.not.lazy.1$solution$Left, 
+  height = 500, 
+  width = 756
+)
+results.not.lazy.1$sommaire
+```
+
+**Note:** the `sommaire` object is empty because the `post.processing` argument within the `sheet.names` list was set to "Post Processing Empty".
+
+Users can build a model with post processing by setting the `post.processing` argument within the `sheet.names` list to "Post Processing".
 
 ```{r}
 sheet.names$model.flow <- "Model Specs (lazy)"
 sheet.names$post.processing <- "Post Processing"
-results.2 <- seir.n.age.classes(model.1.workbook, sheet.names)
+results.lazy <- seir.n.age.classes(model.1.workbook, sheet.names)
 ```
 
-As with the first model, the results from this new model can be inspected in several ways.
+Similar to the `results.not.lazy.1` model, the results from this model can be inspected in several ways. The following line displays the code used for post processing:
 
 ```{r}
-cat(paste(results.2$input.info$post.processing$code, collapse = "\n"))
-head(results.2$solution) 
-results.2$sommaire
+cat(paste(results.lazy$input.info$post.processing$code, collapse = "\n"))
 ```
 
-**Note:** `results.2$solution` contains additional content, that is, the `Theoretical.Right` vector. 
-
-The user can observe that `results.2$sommaries` agrees fairly well with theory.
-
-The following line of code allows for a quick comparison between models 1 and 2 to determine whether the results lead to the same numerical answer.
+Now, when the `sommarie` object is called, it is no longer empty:
 
 ```{r}
-range(results.1$solution - results.2$solution[c("time", "Left", "Right")])
+results.lazy$sommaire
+```
+
+When the model solution is called, there is additional content, i.e., a `Theoretical.Right` vector, that is not available in the `results.not.lazy.1` model.
+
+```{r}
+head(results.lazy$solution) 
+```
+
+### Numerical differences from mathematically equivalment formulations
+
+Users can compare the `results.not.lazy.1` and `results.lazy` models to determine whether the results lead to the same numerical answer:
+
+```{r}
+range(results.not.lazy.1$solution - results.lazy$solution[,-4])
 ```
 
 The model results lead to the same numerical answer, but with rounding errors.
 
-A new model can be built with another model flow option ("not lazy v2").
+When the `results.not.lazy.2` and `results.lazy` models are compared, they also lead to the same numerical answer, but with rounding errors.
 
 ```{r}
-sheet.names$model.flow <- "Model Specs (not lazy v2)"
-sheet.names$post.processing = "Post Processing Empty"
-results.3 <- seir.n.age.classes(model.1.workbook, sheet.names)
+range(results.not.lazy.2$solution - results.lazy$solution[,-4])
 ```
 
-The results of this model, when compared to the results of model 2 (lazy), also lead to the same numerical answer, but with rounding errors.
+When the results from models `results.not.lazy.3` and `results.lazy` are compared, the numerical answer is identical.
 
 ```{r}
-range(results.3$solution - results.2$solution[c("time", "Left", "Right")])
-```
-
-One more model can be built with the `model.flow` parameter set to "Model Specs (not lazy v3)".
-
-```{r}
-sheet.names$model.flow <- "Model Specs (not lazy v3)"
-sheet.names$post.processing = "Post Processing Empty"
-results.4 <- seir.n.age.classes(model.1.workbook, sheet.names)
-```
-
-When the results from this model are compared to model 2 (lazy), the numerical answer is identical.
-
-```{r}
-range(results.4$solution - results.2$solution[c("time", "Left", "Right")])
+range(results.not.lazy.3$solution - results.lazy$solution[,-4])
 ```
