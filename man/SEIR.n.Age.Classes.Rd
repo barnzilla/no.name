@@ -19,19 +19,39 @@ seir.n.age.classes(
 
 \item{sheets.names}{a character vector.}
 
-\item{just.get.functions}{a logical element.}
+\item{just.get.functions}{a logical element (by default, FALSE).}
 
-\item{functions.kit}{a list containing one or more of the following: $differential.eqns.func, $post.processing.func, $post.processing.companion.kit, $CTMC.eqns.func, $CTMC.eqns.func.companion. This parameter is NULL by default.}
+\item{functions.kit}{a list containing one or more of the following: $differential.eqns.func, $post.processing.func, $post.processing.companion.kit, $CTMC.eqns.func, $CTMC.eqns.func.companion (by default, NULL).}
 
-\item{also.get.flows}{a character element.}
+\item{also.get.flows}{a character element (by default, NULL).}
 
-\item{agegrp.glue}{a character element.}
+\item{agegrp.glue}{a character element (by default, an empty character element).}
 
-\item{CTMC.random.seeds}{an integer vector.}
+\item{CTMC.random.seeds}{an integer vector (by default, NULL).}
 }
 \value{
-a SEIR object.
+a list containing the results of the box/compartment model.
 }
 \description{
 Main box/compartment model functions
+}
+\examples{
+
+# Get full path to demo model (in Excel workbook) that comes with the no.name package
+model.1.workbook <- get.path("demo.model.1.xls")
+# Define workbook sheet names
+sheet.names <- list(
+  parms.notime.0d = "Parameters any time any age",
+  parms.0d = "Parameters any age",
+  parms.1d = "Parameters by Age",
+  parms.2d = "Parameters by Age x Age",
+  initial.conditions = "Initial conditions",
+  model.flow = "Model Specs (not lazy v1)",
+  auxiliary.vars = "Intermediate calculations",
+  post.processing = "Post Processing Empty"
+)
+
+# Fit model with model.flow = "Model Specs (not lazy v1)"
+results.1 <- seir.n.age.classes(model.1.workbook, sheet.names)
+
 }

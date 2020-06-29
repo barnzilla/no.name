@@ -1,0 +1,170 @@
+---
+title: "Introduction to the no.name R package"
+author: "Claude Nadeau, Maikol Diasparra, Joel Barnes, Deirdre Hennessy, Rochelle Garner"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Introduction to the no.name R package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<style>
+  img { width: 100%; height: auto; }
+  p { margin-top: 1em; }
+</style>
+
+<img src="https://www.statcan.gc.ca/wet-boew4b/assets/sig-blk-en.svg" style = "max-width: 300px; height: auto; margin-top: 48px; margin-bottom: 24px; border: 0;" alt="logo">
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r klippy, echo=FALSE, include=TRUE}
+klippy::klippy(position = c("top", "right"))
+```
+
+## Introduction
+
+This R package enables users to build box/compartment models via an Excel workbook. ODE (ordinary differential equation) or CTMC (continuous-time Markov chain) models can be built. ODE models can be built for multiple age groups. This package also provides tools for users to perform sensitivity analsyes/parameter sweeps on their models and to visualize model results.
+
+## Installation
+### GitHub
+
+The most recent version of `no.name` is available from the following GitHub repository: <a href="https://github.com/barnzilla/no.name" target="_blank">www.github.com/barnzilla/no.name</a>. The `devtools` R package allows you to download/install `no.name` directly from this repository.
+
+```{r warning = FALSE, message = FALSE, eval = FALSE}
+devtools::install_github("barnzilla/no.name", upgrade = "never")
+library(no.name)
+```
+
+### Source package
+
+Users can also download and install the source package using the `install.packages` function from the `utils` package, which is preinstalled in R.
+
+```{r warning = FALSE, message = FALSE, eval = FALSE}
+utils::install.packages(
+  pkgs = "https://github.com/barnzilla/r-package-sources/raw/master/no.name_12.01.tar.gz",
+  repos = NULL, 
+  type = "source"
+)
+library(no.name)
+```
+
+```{r warning = FALSE, message = FALSE, echo = FALSE}
+library(no.name)
+```
+
+## Demo 1
+
+Users can load a demo model that comes with the `no.name` package using the `get.path` function. This function maps the full path to where the demo model Excel workbook is located on the user's computer.
+
+```{r}
+model.1.workbook <- get.path("demo.model.1.xls")
+```
+
+A list containing sheet names and other parameters needs to be defined. For example, users can set the `model.flow` parameter to "Model Specs (not lazy v1)" and the `post.processing` parameter to "Post Processing Empty".
+
+```{r}
+sheet.names <- list(
+  parms.notime.0d = "Parameters any time any age",
+  parms.0d = "Parameters any age",
+  parms.1d = "Parameters by Age",
+  parms.2d = "Parameters by Age x Age",
+  initial.conditions = "Initial conditions",
+  model.flow = "Model Specs (not lazy v1)",
+  auxiliary.vars = "Intermediate calculations",
+  post.processing = "Post Processing Empty"
+)
+```
+
+The model can be built by calling the `seir.n.age.classes` function.
+
+```{r}
+results.1 <- seir.n.age.classes(model.1.workbook, sheet.names)
+```
+
+The `seir.n.age.classes` function returns an object containing the model results. You can inspect the model inputs by calling the `input.info` list within the `results.1` object.
+
+```{r}
+results.1$input.info$model.flow[, c("From", "To", "lazy", "activation", "expression")]
+results.1$input.info$auxiliary.vars
+results.1$input.info$initial.conditions
+results.1$input.info$parms.notime.0d
+results.1$input.info$parms.0d
+results.1$input.info$parms.1d
+results.1$input.info$parms.2d
+results.1$input.info$post.processing
+```
+
+Here are several ways to inspect the model results. 
+
+```{r}
+head(results.1$solution)
+get.scatter.plot(results.1$solution$time, results.1$solution$Left, height = 500, width = 756)
+results.1$sommaire
+```
+
+**Note:** the third option `results.1$sommaire` is empty because the `post.processing` parameter within the `sheet.names` list was set to "Post Processing Empty".
+
+A new model can be easily built with a different model flow, and with post processing.
+
+```{r}
+sheet.names$model.flow <- "Model Specs (lazy)"
+sheet.names$post.processing <- "Post Processing"
+results.2 <- seir.n.age.classes(model.1.workbook, sheet.names)
+```
+
+As with the first model, the results from this new model can be inspected in several ways.
+
+```{r}
+cat(paste(results.2$input.info$post.processing$code, collapse = "\n"))
+head(results.2$solution) 
+results.2$sommaire
+```
+
+**Note:** `results.2$solution` contains additional content, that is, the `Theoretical.Right` vector. 
+
+The user can observe that `results.2$sommaries` agrees fairly well with theory.
+
+The following line of code allows for a quick comparison between models 1 and 2 to determine whether the results lead to the same numerical answer.
+
+```{r}
+range(results.1$solution - results.2$solution[c("time", "Left", "Right")])
+```
+
+The model results lead to the same numerical answer, but with rounding errors.
+
+A new model can be built with another model flow option ("not lazy v2").
+
+```{r}
+sheet.names$model.flow <- "Model Specs (not lazy v2)"
+sheet.names$post.processing = "Post Processing Empty"
+results.3 <- seir.n.age.classes(model.1.workbook, sheet.names)
+```
+
+The results of this model, when compared to the results of model 2 (lazy), also lead to the same numerical answer, but with rounding errors.
+
+```{r}
+range(results.3$solution - results.2$solution[c("time", "Left", "Right")])
+```
+
+One more model can be built with the `model.flow` parameter set to "Model Specs (not lazy v3)".
+
+```{r}
+sheet.names$model.flow <- "Model Specs (not lazy v3)"
+sheet.names$post.processing = "Post Processing Empty"
+results.4 <- seir.n.age.classes(model.1.workbook, sheet.names)
+```
+
+When the results from this model are compared to model 2 (lazy), the numerical answer is identical.
+
+```{r}
+range(results.4$solution - results.2$solution[c("time", "Left", "Right")])
+```

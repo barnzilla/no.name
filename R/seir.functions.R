@@ -11,13 +11,33 @@
 #'
 #' @param file.name a character element.
 #' @param sheets.names a character vector.
-#' @param just.get.functions a logical element.
-#' @param functions.kit a list containing one or more of the following: $differential.eqns.func, $post.processing.func, $post.processing.companion.kit, $CTMC.eqns.func, $CTMC.eqns.func.companion. This parameter is NULL by default.
-#' @param also.get.flows a character element.
-#' @param agegrp.glue a character element.
-#' @param CTMC.random.seeds an integer vector.
+#' @param just.get.functions a logical element (by default, FALSE).
+#' @param functions.kit a list containing one or more of the following: $differential.eqns.func, $post.processing.func, $post.processing.companion.kit, $CTMC.eqns.func, $CTMC.eqns.func.companion (by default, NULL).
+#' @param also.get.flows a character element (by default, NULL).
+#' @param agegrp.glue a character element (by default, an empty character element).
+#' @param CTMC.random.seeds an integer vector (by default, NULL).
 #'
-#' @return a SEIR object.
+#' @examples
+#'
+#' # Get full path to demo model (in Excel workbook) that comes with the no.name package
+#' model.1.workbook <- get.path("demo.model.1.xls")
+
+#' # Define workbook sheet names
+#' sheet.names <- list(
+#'   parms.notime.0d = "Parameters any time any age",
+#'   parms.0d = "Parameters any age",
+#'   parms.1d = "Parameters by Age",
+#'   parms.2d = "Parameters by Age x Age",
+#'   initial.conditions = "Initial conditions",
+#'   model.flow = "Model Specs (not lazy v1)",
+#'   auxiliary.vars = "Intermediate calculations",
+#'   post.processing = "Post Processing Empty"
+#' )
+#'
+#' # Fit model with model.flow = "Model Specs (not lazy v1)"
+#' results.1 <- seir.n.age.classes(model.1.workbook, sheet.names)
+#'
+#' @return a list containing the results of the box/compartment model.
   
 seir.n.age.classes = function(file.name, sheets.names, just.get.functions = FALSE, functions.kit = NULL, also.get.flows = NULL, agegrp.glue = "", CTMC.random.seeds = NULL)
 {
