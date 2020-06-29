@@ -50,7 +50,7 @@ Users can also download and install the source package using the `install.packag
 
 ```{r warning = FALSE, message = FALSE, eval = FALSE}
 utils::install.packages(
-  pkgs = "https://github.com/barnzilla/r-package-sources/raw/master/no.name_12.01.tar.gz",
+  pkgs = "https://github.com/barnzilla/r-package-sources/raw/master/no.name_12.03.tar.gz",
   repos = NULL, 
   type = "source"
 )
