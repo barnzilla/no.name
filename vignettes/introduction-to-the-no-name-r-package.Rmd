@@ -32,7 +32,7 @@ klippy::klippy(position = c("top", "right"))
 
 ## Introduction
 
-This R package enables users to build box/compartment models via an Excel workbook. ODE (ordinary differential equation) or CTMC (continuous-time Markov chain) models can be built Multiple age group models can be built using ODE. This package also provides tools for users to perform sensitivity analsyes/parameter sweeps on their models and to visualize model results.
+This R package enables users to build box/compartment models via an Excel workbook. ODE (ordinary differential equation) or CTMC (continuous-time Markov chain) models can be built with either single (ODE, CTMC) or multiple age groups (ODE). This package also provides tools for users to perform sensitivity analsyes/parameter sweeps on their models and to visualize model results.
 
 ## Installation
 ### GitHub
