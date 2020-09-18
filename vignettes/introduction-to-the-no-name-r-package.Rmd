@@ -39,7 +39,7 @@ This R package enables users to build box/compartment models via an Excel workbo
 The most recent version of `no.name` is available on GitHub: <a href="https://github.com/barnzilla/no.name" target="_blank">www.github.com/barnzilla/no.name</a>. The `devtools` package allows users to download and install `no.name` directly from GitHub.
 
 ```{r warning = FALSE, message = FALSE, eval = FALSE}
-devtools::install_github("barnzilla/no.name", upgrade = "never")
+devtools::install_github("barnzilla/no.name", upgrade = "never", build_vignettes = TRUE)
 library(no.name)
 ```
 
