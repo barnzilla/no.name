@@ -14,7 +14,8 @@ get.tornado.plot(
   order_by_absolute_value = FALSE,
   add_label = FALSE,
   height = NULL,
-  width = NULL
+  width = NULL,
+  parameter_labels = NULL
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ get.tornado.plot(
 \item{height}{an integer element representing the height of the plot in pixels.}
 
 \item{width}{an integer element representing the width of the plot in pixels.}
+
+\item{parameter_labels}{a character vector representing custom labels for all parameters.}
 }
 \value{
 none.

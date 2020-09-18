@@ -1,6 +1,6 @@
 Package: no.name
 Title: Build Box/Compartment Models Via Excel
-Version: 12.03
+Version: 12.04
 Authors@R: 
     c(person(given = "Claude",
              family = "Nadeau",
@@ -39,7 +39,7 @@ Encoding: UTF-8
 Language: en
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Imports: 
     adaptivetau,
     deSolve,
@@ -57,6 +57,5 @@ Imports:
     tidyr,
     triangle
 Suggests: 
-    klippy,
     knitr,
     rmarkdown
