@@ -1,6 +1,6 @@
 Package: no.name
 Title: Build Box/Compartment Models Via Excel
-Version: 12.04
+Version: 12.05
 Authors@R: 
     c(person(given = "Claude",
              family = "Nadeau",
@@ -30,7 +30,7 @@ Description: This R package enables users to build
     (ODE). This package also provides tools for users to perform
     sensitivity analsyes/parameter sweeps on their models and to visualize
     model results.
-License: CC BY 4.0
+License: GPL-3
 Depends: 
     R (>= 2.10)
 VignetteBuilder: 
